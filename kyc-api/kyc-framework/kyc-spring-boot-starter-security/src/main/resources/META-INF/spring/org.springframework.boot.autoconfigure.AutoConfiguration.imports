@@ -1,0 +1,3 @@
+cn.kyc.dandanxia.framework.security.config.KycSecurityAutoConfiguration
+cn.kyc.dandanxia.framework.security.config.KycWebSecurityConfigurerAdapter
+cn.kyc.dandanxia.framework.operatelog.config.KycOperateLogConfiguration

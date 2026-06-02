@@ -1,0 +1,61 @@
+[ {
+  "contentPath" : "java/InfraStudentPageReqVO",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/controller/admin/demo/vo/InfraStudentPageReqVO.java"
+}, {
+  "contentPath" : "java/InfraStudentRespVO",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/controller/admin/demo/vo/InfraStudentRespVO.java"
+}, {
+  "contentPath" : "java/InfraStudentSaveReqVO",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/controller/admin/demo/vo/InfraStudentSaveReqVO.java"
+}, {
+  "contentPath" : "java/InfraStudentImportExcelVO",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/controller/admin/demo/vo/InfraStudentImportExcelVO.java"
+}, {
+  "contentPath" : "java/InfraStudentImportRespVO",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/controller/admin/demo/vo/InfraStudentImportRespVO.java"
+}, {
+  "contentPath" : "java/InfraStudentController",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/controller/admin/demo/InfraStudentController.java"
+}, {
+  "contentPath" : "java/InfraStudentDO",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/dal/dataobject/demo/InfraStudentDO.java"
+}, {
+  "contentPath" : "java/InfraStudentMapper",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/dal/mysql/demo/InfraStudentMapper.java"
+}, {
+  "contentPath" : "xml/InfraStudentMapper",
+  "filePath" : "kyc-module-infra/src/main/resources/mapper/demo/InfraStudentMapper.xml"
+}, {
+  "contentPath" : "java/InfraStudentServiceImpl",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/service/demo/InfraStudentServiceImpl.java"
+}, {
+  "contentPath" : "java/InfraStudentService",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/service/demo/InfraStudentService.java"
+}, {
+  "contentPath" : "java/InfraStudentServiceImplTest",
+  "filePath" : "kyc-module-infra/src/test/java/cn.kyc.dandanxia/module/infra/service/demo/InfraStudentServiceImplTest.java"
+}, {
+  "contentPath" : "java/ErrorCodeConstants_手动操作",
+  "filePath" : "kyc-module-infra/src/main/java/cn.kyc.dandanxia/module/infra/enums/ErrorCodeConstants_手动操作.java"
+}, {
+  "contentPath" : "sql/sql",
+  "filePath" : "sql/sql.sql"
+}, {
+  "contentPath" : "sql/h2",
+  "filePath" : "sql/h2.sql"
+}, {
+  "contentPath" : "ts/data",
+  "filePath" : "kyc-ui-admin-vben/src/views/infra/demo/data.ts"
+}, {
+  "contentPath" : "vue/index",
+  "filePath" : "kyc-ui-admin-vben/src/views/infra/demo/index.vue"
+}, {
+  "contentPath" : "vue/form",
+  "filePath" : "kyc-ui-admin-vben/src/views/infra/demo/modules/form.vue"
+}, {
+  "contentPath" : "vue/import-form",
+  "filePath" : "kyc-ui-admin-vben/src/views/infra/demo/modules/import-form.vue"
+}, {
+  "contentPath" : "ts/index",
+  "filePath" : "kyc-ui-admin-vben/src/api/infra/demo/index.ts"
+} ]

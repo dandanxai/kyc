@@ -1,0 +1,26 @@
+# --- 前端 Vue ---
+node_modules/
+dist/
+.DS_Store
+
+# --- 后端 Spring Boot ---
+target/
+.gradle/
+build/
+*.class
+
+
+# 忽略本地数据库配置、日志文件
+*.log
+*.tmp
+*.bak
+*.dmp
+dm.ini
+config/
+logs/
+.idea/
+.vscode/
+
+# 忽略所有以 .jks 或 .crt 结尾的证书文件
+*.jks
+*.crt"kyc-api/sql/" 

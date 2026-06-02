@@ -1,0 +1,2 @@
+cn.kyc.dandanxia.framework.quartz.config.KycQuartzAutoConfiguration
+cn.kyc.dandanxia.framework.quartz.config.KycAsyncAutoConfiguration

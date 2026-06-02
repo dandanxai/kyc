@@ -1,0 +1,3 @@
+cn.kyc.dandanxia.framework.datasource.config.KycDataSourceAutoConfiguration
+cn.kyc.dandanxia.framework.mybatis.config.KycMybatisAutoConfiguration
+cn.kyc.dandanxia.framework.translate.config.KycTranslateAutoConfiguration

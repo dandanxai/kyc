@@ -1,0 +1,3 @@
+cn.kyc.dandanxia.framework.mq.redis.config.KycRedisMQProducerAutoConfiguration
+cn.kyc.dandanxia.framework.mq.redis.config.KycRedisMQConsumerAutoConfiguration
+cn.kyc.dandanxia.framework.mq.rabbitmq.config.KycRabbitMQAutoConfiguration

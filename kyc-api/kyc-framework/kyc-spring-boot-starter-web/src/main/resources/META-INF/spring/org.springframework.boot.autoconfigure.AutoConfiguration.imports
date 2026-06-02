@@ -1,0 +1,7 @@
+cn.kyc.dandanxia.framework.apilog.config.KycApiLogAutoConfiguration
+cn.kyc.dandanxia.framework.jackson.config.KycJacksonAutoConfiguration
+cn.kyc.dandanxia.framework.swagger.config.KycSwaggerAutoConfiguration
+cn.kyc.dandanxia.framework.web.config.KycWebAutoConfiguration
+cn.kyc.dandanxia.framework.xss.config.KycXssAutoConfiguration
+cn.kyc.dandanxia.framework.banner.config.KycBannerAutoConfiguration
+cn.kyc.dandanxia.framework.encrypt.config.KycApiEncryptAutoConfiguration
