@@ -16,7 +16,6 @@ build/
 *.bak
 *.dmp
 dm.ini
-config/
 logs/
 .idea/
 .vscode/
