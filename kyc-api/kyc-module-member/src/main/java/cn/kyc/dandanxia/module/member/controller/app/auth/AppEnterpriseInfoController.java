@@ -1,10 +1,10 @@
 package cn.kyc.dandanxia.module.member.controller.app.auth;
 
-import cn.kyc.dandanxia.module.member.controller.app.auth.vo.AppEnterpriseInfoPageReqVO;
-import cn.kyc.dandanxia.module.member.controller.app.auth.vo.AppEnterpriseInfoRespVO;
-import cn.kyc.dandanxia.module.member.controller.app.auth.vo.AppEnterpriseInfoSaveReqVO;
+import cn.kyc.dandanxia.module.member.controller.app.auth.vo.*;
 import cn.kyc.dandanxia.module.member.dal.dataobject.enterpriseinfo.EnterpriseInfoDO;
+import cn.kyc.dandanxia.module.member.service.auth.MemberAuthService;
 import cn.kyc.dandanxia.module.member.service.enterpriseinfo.EnterpriseInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
+import javax.annotation.security.PermitAll;
 import javax.validation.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -30,20 +31,45 @@ import cn.kyc.dandanxia.framework.apilog.core.annotation.ApiAccessLog;
 import static cn.kyc.dandanxia.framework.apilog.core.enums.OperateTypeEnum.*;
 
 
+@Slf4j
 @Tag(name = "用户 APP - 企业信息")
 @RestController
 @RequestMapping("/enterprise/auth")
 @Validated
 public class AppEnterpriseInfoController {
 
+
+
+    @Resource
+    private MemberAuthService authService;
+
     @Resource
     private EnterpriseInfoService enterpriseInfoService;
 
     @PostMapping("/create")
+    @PermitAll
     @Operation(summary = "创建企业信息")
     public CommonResult<Long> createEnterpriseInfo(@Valid @RequestBody AppEnterpriseInfoSaveReqVO createReqVO) {
-        return success(enterpriseInfoService.createEnterpriseInfo(createReqVO));
+        log.error("注册" , createReqVO.toString());
+        return null;
+//        return success(enterpriseInfoService.createEnterpriseInfo(createReqVO));
     }
+
+    @PostMapping("/login")
+    @Operation(summary = "使用手机 + 密码登录")
+    @PermitAll
+    public CommonResult<AppAuthLoginRespVO> login(@RequestBody @Valid AppAuthLoginReqVO reqVO) {
+        return success(authService.login(reqVO));
+    }
+
+//    @PostMapping("/register")
+//    @Operation(summary = "注册会员(接收注册对象)")
+//    @PermitAll
+//    public CommonResult<AppAuthLoginRespVO> register(@RequestBody @Valid AppAuthRegisterReqVO reqVO) {
+//        return success(authService.register(reqVO));
+//    }
+
+
 
     @PutMapping("/update")
     @Operation(summary = "更新企业信息")

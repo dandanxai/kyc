@@ -7,7 +7,7 @@ import errorCode from './errorCode'
 
 // 这里的 auth 方法你需要根据自己的项目（比如 localStorage 或 Pinia）来实现
 // 假设你写在 src/utils/auth.ts 中：
-import { getAccessToken, getRefreshToken, getTenantId, setToken, removeToken } from '@/utils/auth'
+import { getAccessToken, getRefreshToken, getTenantId, setToken, removeToken } from '../../utils/auth'
 
 const { result_code, base_url, request_timeout } = config
 
@@ -15,7 +15,7 @@ const ignoreMsgs = ['无效的刷新令牌', '刷新令牌已过期']
 export const isRelogin = { show: false }
 let requestList: any[] = []
 let isRefreshToken = false
-const whiteList: string[] = ['/login', '/refresh-token']
+const whiteList: string[] = ['/login', '/refresh-token', '/enterprise/auth/create']
 
 const service: AxiosInstance = axios.create({
 baseURL: base_url,
@@ -168,7 +168,7 @@ if (!isRelogin.show) {
     }).then(() => {
     removeToken() // 清理本地缓存的Token
     isRelogin.show = false
-    window.location.href = '/login' // 直接跳转回你自己的登录页
+    window.location.href = '/auth/login'
     })
 }
 return Promise.reject('登录超时')

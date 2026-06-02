@@ -46,7 +46,7 @@ public class EnterpriseInfoServiceImpl implements EnterpriseInfoService {
     @Override
     public void updateEnterpriseInfo(AppEnterpriseInfoSaveReqVO updateReqVO) {
         // 校验存在
-        validateEnterpriseInfoExists(updateReqVO.getId());
+//        validateEnterpriseInfoExists(updateReqVO.getId());
         // 更新
         EnterpriseInfoDO updateObj = BeanUtils.toBean(updateReqVO, EnterpriseInfoDO.class);
         enterpriseInfoMapper.updateById(updateObj);

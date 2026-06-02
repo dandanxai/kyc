@@ -1,15 +1,27 @@
 package cn.kyc.dandanxia.module.member.controller.app.auth.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.*;
-import java.time.LocalDateTime;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import java.util.List;
 
-@Schema(description = "用户 APP - 企业信息新增/修改 Request VO")
+/**
+ * @program: ruoyi-vue-pro-master
+ * @description: 注册对象
+ * @author: 黄胜
+ * @create: 2026-03-03 14:07
+ **/
+
+@Schema(description = "用户 APP - 企业认证注册请求 VO")
 @Data
-public class AppEnterpriseInfoSaveReqVO {
+public class AppAuthRegisterReqVO {
+
+
 
     @Schema(description = "手机号", requiredMode = Schema.RequiredMode.REQUIRED, example = "15601691300")
     @NotBlank(message = "手机号不能为空")
@@ -80,5 +92,9 @@ public class AppEnterpriseInfoSaveReqVO {
     @Schema(description = "身份证反面照片(URL或Base64)", requiredMode = Schema.RequiredMode.REQUIRED)
 //    @NotBlank(message = "身份证反面照片不能为空")
     private String identityBack;
+
+
+    @Schema(description = "企业海关编码", example = "['230166000E', '240599000X']")
+    private List<String> tradeCode;
 
 }

@@ -1,7 +1,6 @@
 # --- 前端 Vue ---
 node_modules/
 dist/
-.DS_Store
 
 # --- 后端 Spring Boot ---
 target/
@@ -19,7 +18,3 @@ dm.ini
 logs/
 .idea/
 .vscode/
-
-# 忽略所有以 .jks 或 .crt 结尾的证书文件
-*.jks
-*.crt"kyc-api/sql/" 
