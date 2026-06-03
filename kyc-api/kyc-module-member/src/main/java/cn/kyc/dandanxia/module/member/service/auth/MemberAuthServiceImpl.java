@@ -257,6 +257,18 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         return AuthConvert.INSTANCE.convert(accessTokenDO, null);
     }
 
+    @Override
+    public AppAuthLoginRespVO register(AppAuthRegisterReqVO reqVO) {
+        String userIp = getClientIP();
+
+        // 1. 调用专用的企业注册逻辑
+        MemberUserDO user = userService.createRegisterUser(reqVO, userIp, getTerminal());
+        Assert.notNull(user, "获取用户失败，结果为空");
+
+        // 2. 完美复用老代码：创建 Token 令牌，记录登录日志
+        return createTokenAfterLoginSuccess(user, user.getMobile(), LoginLogTypeEnum.LOGIN_MOBILE, null);
+    }
+
     private void createLogoutLog(Long userId) {
         LoginLogCreateReqDTO reqDTO = new LoginLogCreateReqDTO();
         reqDTO.setLogType(LoginLogTypeEnum.LOGOUT_SELF.getType());

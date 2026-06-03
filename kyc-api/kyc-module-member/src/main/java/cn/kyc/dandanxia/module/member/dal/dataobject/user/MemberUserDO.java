@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -45,10 +46,12 @@ public class MemberUserDO extends TenantBaseDO {
      * 手机
      */
     private String mobile;
+
     /**
-     * 邮箱
+     * 邮箱（新增）
      */
     private String email;
+
     /**
      * 加密后的密码
      *
@@ -145,5 +148,52 @@ public class MemberUserDO extends TenantBaseDO {
      * 关联 {@link MemberGroupDO#getId()} 字段
      */
     private Long groupId;
+
+    // ========== 企业认证信息 (新增) ==========
+
+    /**
+     * 公司营业执照名称
+     */
+    private String licenceName;
+    /**
+     * 所在省
+     */
+    private String province;
+    /**
+     * 所在市
+     */
+    private String city;
+    /**
+     * 所在区/县
+     */
+    private String county;
+    /**
+     * 详细地址
+     */
+    private String addressDetail;
+    /**
+     * 纳税人识别号
+     */
+    private String taxpayerCode;
+    /**
+     * 经营范围
+     */
+    private String businessScope;
+    /**
+     * 营业执照照片(URL或Base64)
+     */
+    private String licenceFile;
+    /**
+     * 身份证正面照片(URL或Base64)
+     */
+    private String identityFront;
+    /**
+     * 身份证反面照片(URL或Base64)
+     */
+    private String identityBack;
+    /**
+     * 企业海关编码
+     */
+    private String tradeCode;
 
 }

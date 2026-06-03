@@ -5,6 +5,7 @@ import cn.kyc.dandanxia.framework.common.pojo.PageResult;
 import cn.kyc.dandanxia.framework.common.validation.Mobile;
 import cn.kyc.dandanxia.module.member.controller.admin.user.vo.MemberUserPageReqVO;
 import cn.kyc.dandanxia.module.member.controller.admin.user.vo.MemberUserUpdateReqVO;
+import cn.kyc.dandanxia.module.member.controller.app.auth.vo.AppAuthRegisterReqVO;
 import cn.kyc.dandanxia.module.member.controller.app.user.vo.*;
 import cn.kyc.dandanxia.module.member.dal.dataobject.user.MemberUserDO;
 
@@ -186,5 +187,8 @@ public interface MemberUserService {
      * @return 更新结果
      */
     boolean updateUserPoint(Long userId, Integer point);
-
+    /**
+     * 企业认证专用：创建用户并保存企业信息
+     */
+    MemberUserDO createRegisterUser(AppAuthRegisterReqVO reqVO, String registerIp, Integer terminal);
 }

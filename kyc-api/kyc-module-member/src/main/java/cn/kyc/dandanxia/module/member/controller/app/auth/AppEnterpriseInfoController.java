@@ -1,5 +1,8 @@
 package cn.kyc.dandanxia.module.member.controller.app.auth;
 
+import cn.hutool.core.util.StrUtil;
+import cn.kyc.dandanxia.framework.security.config.SecurityProperties;
+import cn.kyc.dandanxia.framework.security.core.util.SecurityFrameworkUtils;
 import cn.kyc.dandanxia.module.member.controller.app.auth.vo.*;
 import cn.kyc.dandanxia.module.member.dal.dataobject.enterpriseinfo.EnterpriseInfoDO;
 import cn.kyc.dandanxia.module.member.service.auth.MemberAuthService;
@@ -39,35 +42,46 @@ import static cn.kyc.dandanxia.framework.apilog.core.enums.OperateTypeEnum.*;
 public class AppEnterpriseInfoController {
 
 
-
-    @Resource
-    private MemberAuthService authService;
-
     @Resource
     private EnterpriseInfoService enterpriseInfoService;
 
-    @PostMapping("/create")
+
+    @Resource
+    private SecurityProperties securityProperties;
+
+    @PostMapping("/register")
     @PermitAll
     @Operation(summary = "创建企业信息")
-    public CommonResult<Long> createEnterpriseInfo(@Valid @RequestBody AppEnterpriseInfoSaveReqVO createReqVO) {
-        log.error("注册" , createReqVO.toString());
-        return null;
-//        return success(enterpriseInfoService.createEnterpriseInfo(createReqVO));
+    public CommonResult<AppAuthLoginRespVO> createEnterpriseInfo(@Valid @RequestBody AppEnterpriseInfoSaveReqVO createReqVO) {
+        return success(enterpriseInfoService.register(createReqVO));
     }
 
     @PostMapping("/login")
     @Operation(summary = "使用手机 + 密码登录")
     @PermitAll
     public CommonResult<AppAuthLoginRespVO> login(@RequestBody @Valid AppAuthLoginReqVO reqVO) {
-        return success(authService.login(reqVO));
+        return success(enterpriseInfoService.login(reqVO));
     }
 
-//    @PostMapping("/register")
-//    @Operation(summary = "注册会员(接收注册对象)")
-//    @PermitAll
-//    public CommonResult<AppAuthLoginRespVO> register(@RequestBody @Valid AppAuthRegisterReqVO reqVO) {
-//        return success(authService.register(reqVO));
-//    }
+    @PostMapping("/logout")
+    @Operation(summary = "登出系统")
+    @PermitAll
+    public CommonResult<Boolean> logout(HttpServletRequest request) {
+        String token = SecurityFrameworkUtils.obtainAuthorization(request,
+                securityProperties.getTokenHeader(), securityProperties.getTokenParameter());
+        if (StrUtil.isNotBlank(token)) {
+            enterpriseInfoService.logout(token);
+        }
+        return success(true);
+    }
+
+    @PostMapping("/refresh-token")
+    @Operation(summary = "刷新令牌")
+    @Parameter(name = "refreshToken", description = "刷新令牌", required = true)
+    @PermitAll
+    public CommonResult<AppAuthLoginRespVO> refreshToken(@RequestParam("refreshToken") String refreshToken) {
+        return success(enterpriseInfoService.refreshToken(refreshToken));
+    }
 
 
 
@@ -96,8 +110,9 @@ public class AppEnterpriseInfoController {
 
     @GetMapping("/get")
     @Operation(summary = "获得企业信息")
-    @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    public CommonResult<AppEnterpriseInfoRespVO> getEnterpriseInfo(@RequestParam("id") Long id) {
+    @Parameter(name = "id", description = "编号", required = false, example = "1024")
+    public CommonResult<AppEnterpriseInfoRespVO> getEnterpriseInfo(
+            @RequestParam(value = "id", required = false) Long id) {
         EnterpriseInfoDO enterpriseInfo = enterpriseInfoService.getEnterpriseInfo(id);
         return success(BeanUtils.toBean(enterpriseInfo, AppEnterpriseInfoRespVO.class));
     }

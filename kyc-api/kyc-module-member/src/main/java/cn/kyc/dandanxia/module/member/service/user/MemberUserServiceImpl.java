@@ -6,10 +6,12 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.*;
 import cn.kyc.dandanxia.framework.common.enums.CommonStatusEnum;
 import cn.kyc.dandanxia.framework.common.enums.UserTypeEnum;
+import cn.kyc.dandanxia.framework.common.exception.ServiceException;
 import cn.kyc.dandanxia.framework.common.pojo.PageResult;
 import cn.kyc.dandanxia.framework.common.util.object.BeanUtils;
 import cn.kyc.dandanxia.module.member.controller.admin.user.vo.MemberUserPageReqVO;
 import cn.kyc.dandanxia.module.member.controller.admin.user.vo.MemberUserUpdateReqVO;
+import cn.kyc.dandanxia.module.member.controller.app.auth.vo.AppAuthRegisterReqVO;
 import cn.kyc.dandanxia.module.member.controller.app.user.vo.*;
 import cn.kyc.dandanxia.module.member.convert.auth.AuthConvert;
 import cn.kyc.dandanxia.module.member.convert.user.MemberUserConvert;
@@ -338,6 +340,44 @@ public class MemberUserServiceImpl implements MemberUserService {
             return memberUserMapper.updatePointDecr(id, point) > 0;
         }
         return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public MemberUserDO createRegisterUser(AppAuthRegisterReqVO reqVO, String registerIp, Integer terminal) {
+        // 1. 校验手机号是否已经存在
+        MemberUserDO existingUser = memberUserMapper.selectByMobile(reqVO.getMobile());
+        if (existingUser != null) {
+            // 这里换成你们项目统一的异常抛出方式
+            throw new ServiceException(400, "该手机号已被注册，请直接登录");
+        }
+
+        // 2. 构建新用户对象
+        MemberUserDO user = new MemberUserDO();
+        user.setMobile(reqVO.getMobile());
+        user.setStatus(CommonStatusEnum.ENABLE.getStatus()); // 默认开启
+        user.setRegisterIp(registerIp).setRegisterTerminal(terminal);
+
+        // 3. 密码加密 (复用你代码里现有的 encodePassword 方法)
+        user.setPassword(encodePassword(reqVO.getPassword()));
+
+        // 4. 赋值企业认证新增的各个字段
+        user.setName(reqVO.getUsername());
+        user.setSex(reqVO.getSex());
+        user.setEmail(reqVO.getEmail());
+
+        // 5. 插入数据库
+        memberUserMapper.insert(user);
+
+        // 6. 发送 MQ 消息：用户创建 (照抄原版逻辑，保证项目其它模块同步不出错)
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                memberUserProducer.sendUserCreateMessage(user.getId());
+            }
+        });
+
+        return user;
     }
 
 }

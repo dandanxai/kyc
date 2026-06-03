@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-
+import { createPinia } from 'pinia'
 // 1. 引入刚刚配置好的路由实例
 import { router } from './router'
 
@@ -9,8 +9,9 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
 const app = createApp(App)
+const pinia = createPinia()
 
-// 3. 核心：通过 .use() 全局注册路由和 UI 组件库
+app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
 

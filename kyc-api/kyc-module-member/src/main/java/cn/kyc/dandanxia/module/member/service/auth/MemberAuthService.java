@@ -85,4 +85,5 @@ public interface MemberAuthService {
      */
     AppAuthLoginRespVO refreshToken(String refreshToken);
 
+    AppAuthLoginRespVO register(@Valid AppAuthRegisterReqVO reqVO);
 }

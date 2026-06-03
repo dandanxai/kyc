@@ -4,7 +4,7 @@ import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import qs from 'qs'
 import { config } from './config'
 import errorCode from './errorCode'
-
+import { EnterpriseAuthApi } from '@/api/enterprise'
 // 这里的 auth 方法你需要根据自己的项目（比如 localStorage 或 Pinia）来实现
 // 假设你写在 src/utils/auth.ts 中：
 import { getAccessToken, getRefreshToken, getTenantId, setToken, removeToken } from '../../utils/auth'
@@ -87,38 +87,58 @@ async (response: AxiosResponse<any>) => {
     } 
     
     // 核心：401 Token 过期无感刷新
+    // 核心：401 Token 过期无感刷新
     else if (code === 401) {
-    if (!isRefreshToken) {
+        if (!isRefreshToken) {
         isRefreshToken = true
-        if (!getRefreshToken()) {
-        return handleAuthorized()
-        }
-        try {
-        const refreshTokenRes = await refreshToken()
-        // 刷新成功，保存新 Token
-        setToken(refreshTokenRes.data.data)
-        currentConfig.headers!.Authorization = 'Bearer ' + getAccessToken()
         
-        // 回放队列
-        requestList.forEach((cb: any) => cb())
-        requestList = []
-        return service(currentConfig)
-        } catch (e) {
-        requestList.forEach((cb: any) => cb())
-        return handleAuthorized()
-        } finally {
-        requestList = []
-        isRefreshToken = false
+        if (!getRefreshToken()) {
+            return handleAuthorized()
         }
-    } else {
-        // 正在刷新中，把请求挂起加入队列
+        
+        try {
+            // 1. 偷偷去后端换取新牌（注意：EnterpriseAuthApi.refreshToken 已经被剥壳或未剥壳）
+            const refreshTokenRes = await refreshToken()
+            
+            // 🌟 芋道底层适配核心点：
+            // 因为你使用的是封装好的 API 或原生 axios，必须要保证拿到的是含有 accessToken 的实体对象
+            // 如果你的 API 返回的是剥壳后的数据，那就是 refreshTokenRes；如果是原生响应，则是 refreshTokenRes.data.data
+            const tokenData = refreshTokenRes.data?.data || refreshTokenRes.data || refreshTokenRes
+            
+            if (!tokenData || !tokenData.accessToken) {
+            throw new Error('刷新令牌返回的结构不正确，无法读取新Token')
+            }
+
+            // 2. 将全新的双 Token 拍进本地缓存（localStorage）
+            setToken(tokenData)
+            
+            // 3. 🌟 核心修复：更新当前请求的 Authorization 头（确保是最新的 AccessToken）
+            const newAccessToken = getAccessToken()
+            currentConfig.headers!.Authorization = 'Bearer ' + newAccessToken
+            
+            // 4. 🌟 核心修复：依次执行并回放队列里的请求，且必须把最新的 Token 强行注入进去！
+            requestList.forEach((cb: any) => cb(newAccessToken))
+            requestList = []
+            
+            // 5. 回放当前最先触发 401 的这个请求
+            return service(currentConfig)
+        } catch (e) {
+            console.error('无感刷新彻底失败，强制清空凭证重定向', e)
+            requestList = []
+            return handleAuthorized()
+        } finally {
+            isRefreshToken = false
+        }
+        } else {
+        // 🌟 核心修复：当处于“正在刷新”状态时，把请求挂起加入队列
+        // 必须通过形参把最新的 token 传进来，动态赋给 headers，不能用闭包去捞旧配置！
         return new Promise((resolve) => {
-        requestList.push(() => {
-            currentConfig.headers!.Authorization = 'Bearer ' + getAccessToken()
+            requestList.push((token: string) => {
+            currentConfig.headers!.Authorization = 'Bearer ' + token
             resolve(service(currentConfig))
+            })
         })
-        })
-    }
+        }
     } else if (code === 500) {
     ElMessage.error('系统接口异常')
     return Promise.reject(new Error(msg))
@@ -148,8 +168,13 @@ async (response: AxiosResponse<any>) => {
 )
 
 const refreshToken = async () => {
-axios.defaults.headers.common['tenant-id'] = getTenantId()
-return await axios.post(base_url + '/system/auth/refresh-token?refreshToken=' + getRefreshToken())
+    // 1. 注入租户ID (对接后端必须)
+    axios.defaults.headers.common['tenant-id'] = getTenantId()
+    
+    // 2. 🌟 核心修改点：改为你的企业端刷新令牌路径，并通过 Query 参数拼入 refreshToken
+    // 如果你的 Controller 统一前缀是 /enterprise/auth，那就改成 /enterprise/auth/refresh-token
+    const refreshTokenStr = getRefreshToken() || ''
+    return await EnterpriseAuthApi.refreshToken(refreshTokenStr)
 }
 
 const handleAuthorized = () => {

@@ -8,45 +8,45 @@ export interface LoginRespVO {
   expiresTime: number
 }
 
-// 企业认证总 API 形式
-export const EnterpriseAuthApi = {
+// 个人认证总 API 形式
+export const UserAuthApi = {
   /**
-   * 企业入驻申请（注册）
+   * 个人入驻申请（注册）
    * @param data 注册完整表单数据
    */
-  registerEnterprise: async (data: any) => {
+  registerUser: async (data: any) => {
     return await request.post({
-      url: '/enterprise/auth/register',
+      url: '/member/auth/register',
       data
     })
   },
 
   /**
-   * 企业端用户登录
+   * 个人端用户登录
    * @param data 登录表单数据（账号 + 密码）
    */
-  loginEnterprise: async (data: any) => {
+  loginUser: async (data: any) => {
     return await request.post<LoginRespVO>({
-      url: '/enterprise/auth/login',
+      url: '/member/auth/login',
       data
     })
   },
 
   /**
-   * 获取企业信息
+   * 获取个人信息
    */
   getUserInfo: async () => {
     return await request.get({
-      url: '/enterprise/auth/get' 
+      url: '/member/user/get' 
     })
   },
 
   /**
-   * 🌟 核心新增：企业端用户登出系统
+   * 🌟 核心新增：个人端用户登出系统
    */
   logout: async () => {
     return await request.post({
-      url: '/enterprise/auth/logout'
+      url: '/member/auth/logout'
     })
   },
 
@@ -57,7 +57,7 @@ export const EnterpriseAuthApi = {
    */
   refreshToken: (refreshToken: string) => {
     return request.postOriginal({
-      url: '/enterprise/auth/refresh-token',
+      url: '/member/auth/refresh-token',
       // 🌟 使用 params 传参，Axios 会自动将其拼接到 URL 后面变为 ?refreshToken=xxx
       // 这样就彻底告别了难看的字符串加号拼接！
       params: {

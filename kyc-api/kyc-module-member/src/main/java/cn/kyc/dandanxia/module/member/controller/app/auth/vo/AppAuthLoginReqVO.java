@@ -23,7 +23,6 @@ public class AppAuthLoginReqVO {
 
     @Schema(description = "手机号", requiredMode = Schema.RequiredMode.REQUIRED, example = "15601691300")
     @NotEmpty(message = "手机号不能为空")
-    @Mobile
     private String mobile;
 
     @Schema(description = "密码", requiredMode = Schema.RequiredMode.REQUIRED, example = "buzhidao")

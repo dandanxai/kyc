@@ -37,9 +37,9 @@ public class AppAuthRegisterReqVO {
     @Length(min = 6, max = 20, message = "密码长度为 6-20 位")
     private String password;
 
-    @Schema(description = "用户昵称", requiredMode = Schema.RequiredMode.REQUIRED, example = "芋道")
-    @NotBlank(message = "昵称不能为空")
-    private String nickname;
+//    @Schema(description = "用户昵称", requiredMode = Schema.RequiredMode.REQUIRED, example = "芋道")
+//    @NotBlank(message = "昵称不能为空")
+//    private String nickname;
 
     @Schema(description = "用户名(真实姓名)", requiredMode = Schema.RequiredMode.REQUIRED, example = "张三")
     @NotBlank(message = "用户名不能为空")
@@ -53,48 +53,45 @@ public class AppAuthRegisterReqVO {
     @NotNull(message = "性别不能为空")
     private Integer sex;
 
-    @Schema(description = "公司营业执照名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "阿里云计算有限公司")
-    @NotBlank(message = "公司营业执照名称不能为空")
-    private String licenceName;
+//    @Schema(description = "公司营业执照名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "阿里云计算有限公司")
+//    @NotBlank(message = "公司营业执照名称不能为空")
+//    private String licenceName;
 
-    @Schema(description = "所在省", requiredMode = Schema.RequiredMode.REQUIRED, example = "浙江省")
-    @NotBlank(message = "所在省不能为空")
-    private String province;
+//    @Schema(description = "所在省", requiredMode = Schema.RequiredMode.REQUIRED, example = "浙江省")
+//    @NotBlank(message = "所在省不能为空")
+//    private String province;
+//
+//    @Schema(description = "所在市", requiredMode = Schema.RequiredMode.REQUIRED, example = "杭州市")
+//    @NotBlank(message = "所在市不能为空")
+//    private String city;
+//
+//    @Schema(description = "所在区/县", requiredMode = Schema.RequiredMode.REQUIRED, example = "西湖区")
+//    @NotBlank(message = "所在区/县不能为空")
+//    private String county;
 
-    @Schema(description = "所在市", requiredMode = Schema.RequiredMode.REQUIRED, example = "杭州市")
-    @NotBlank(message = "所在市不能为空")
-    private String city;
+//    @Schema(description = "详细地址", requiredMode = Schema.RequiredMode.REQUIRED, example = "某某街道某某号")
+//    @NotBlank(message = "详细地址不能为空")
+//    private String addressDetail;
+//
+//    @Schema(description = "纳税人识别号", requiredMode = Schema.RequiredMode.REQUIRED, example = "91330000XXXXXXX")
+//    @NotBlank(message = "纳税人识别号不能为空")
+//    private String taxpayerCode;
+//
+//    @Schema(description = "经营范围", requiredMode = Schema.RequiredMode.REQUIRED, example = "计算机软硬件...")
+//    @NotBlank(message = "经营范围不能为空")
+//    private String businessScope;
+//
+//    @Schema(description = "营业执照照片(URL或Base64)", requiredMode = Schema.RequiredMode.REQUIRED)
+////    @NotBlank(message = "营业执照照片不能为空")
+//    private String licenceFile;
+//
+//    @Schema(description = "身份证正面照片(URL或Base64)", requiredMode = Schema.RequiredMode.REQUIRED)
+////    @NotBlank(message = "身份证正面照片不能为空")
+//    private String identityFront;
+//
+//    @Schema(description = "身份证反面照片(URL或Base64)", requiredMode = Schema.RequiredMode.REQUIRED)
+////    @NotBlank(message = "身份证反面照片不能为空")
+//    private String identityBack;
 
-    @Schema(description = "所在区/县", requiredMode = Schema.RequiredMode.REQUIRED, example = "西湖区")
-    @NotBlank(message = "所在区/县不能为空")
-    private String county;
-
-    @Schema(description = "详细地址", requiredMode = Schema.RequiredMode.REQUIRED, example = "某某街道某某号")
-    @NotBlank(message = "详细地址不能为空")
-    private String addressDetail;
-
-    @Schema(description = "纳税人识别号", requiredMode = Schema.RequiredMode.REQUIRED, example = "91330000XXXXXXX")
-    @NotBlank(message = "纳税人识别号不能为空")
-    private String taxpayerCode;
-
-    @Schema(description = "经营范围", requiredMode = Schema.RequiredMode.REQUIRED, example = "计算机软硬件...")
-    @NotBlank(message = "经营范围不能为空")
-    private String businessScope;
-
-    @Schema(description = "营业执照照片(URL或Base64)", requiredMode = Schema.RequiredMode.REQUIRED)
-//    @NotBlank(message = "营业执照照片不能为空")
-    private String licenceFile;
-
-    @Schema(description = "身份证正面照片(URL或Base64)", requiredMode = Schema.RequiredMode.REQUIRED)
-//    @NotBlank(message = "身份证正面照片不能为空")
-    private String identityFront;
-
-    @Schema(description = "身份证反面照片(URL或Base64)", requiredMode = Schema.RequiredMode.REQUIRED)
-//    @NotBlank(message = "身份证反面照片不能为空")
-    private String identityBack;
-
-
-    @Schema(description = "企业海关编码", example = "['230166000E', '240599000X']")
-    private List<String> tradeCode;
 
 }

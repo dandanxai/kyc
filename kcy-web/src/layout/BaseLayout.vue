@@ -1,6 +1,5 @@
 <template>
     <div class="layout-container">
-    <!-- 核心变化：通过 isIndexHeader 计算属性，决定它是走首页动态渐变，还是走其他页面的常驻不透明 -->
     <header :class="['app-header', isIndexHeader ? (isScrolled ? 'header-glass' : 'header-transparent') : 'header-glass']">
         <div class="header-content">
         
@@ -11,7 +10,7 @@
             <router-link to="/jobs" class="nav-item" active-class="active">职位</router-link>
             <router-link to="/companies" class="nav-item" active-class="active">企业</router-link>
             
-            <el-dropdown trigger="hover" @command="handleMenuCommand" class="nav-dropdown-wrapper">
+            <el-dropdown v-if="isLogin" trigger="hover" @command="handleMenuCommand" class="nav-dropdown-wrapper">
                 <span :class="['nav-item', 'nav-dropdown-trigger', { 'active': isMyRoute }]">
                 我的 <el-icon class="el-icon--right"><ArrowDown /></el-icon>
                 </span>
@@ -26,7 +25,6 @@
             </nav>
         </div>
         
-        <!-- 核心变化：通过 isSearchShow 计算属性控制，如果是内页直接放出搜索框，如果是首页则等待滚动 -->
         <div :class="['header-search-flex-node', { 'search-show': isSearchShow }]">
             <div class="header-search-capsule">
             <el-icon class="h-search-icon"><Search /></el-icon>
@@ -44,29 +42,41 @@
         <div class="right-section">
             <div class="identity-switch-btn" @click="switchToCompanyEnd">
             <span class="pulse-dot"></span>
-            我要做人
+            我要招人
             </div>
 
-            <div class="message-bell-box" @click="router.push('/deliveries')">
-            <el-badge :value="3" :max="99" class="msg-badge" type="danger">
-                <el-icon class="bell-icon"><Bell /></el-icon>
-            </el-badge>
-            </div>
-            
-            <el-dropdown trigger="hover" @command="handleUserCommand" placement="bottom-end">
-            <div class="user-info-trigger">
-                <el-avatar :size="32" src="https://picsum.photos/100/100?random=10" class="header-avatar" />
-                <span class="username">我的中心</span>
-            </div>
-            <template #dropdown>
-                <el-dropdown-menu class="geek-dropdown-menu">
-                <el-dropdown-item command="/profile"><el-icon><User /></el-icon>个人中心</el-dropdown-item>
-                <el-dropdown-item command="logout" divided class="logout-item">
-                    <el-icon><SwitchButton /></el-icon>退出登录
-                </el-dropdown-item>
-                </el-dropdown-menu>
+            <template v-if="isLogin">
+                <div class="message-bell-box" @click="router.push('/deliveries')">
+                <el-badge :value="3" :max="99" class="msg-badge" type="danger">
+                    <el-icon class="bell-icon"><Bell /></el-icon>
+                </el-badge>
+                </div>
+                
+                <el-dropdown trigger="hover" @command="handleUserCommand" placement="bottom-end">
+                <div class="user-info-trigger">
+                    <el-avatar 
+                        :size="32" 
+                        :src="userInfo?.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" 
+                        class="header-avatar" 
+                    />
+                    <span class="username">{{ userInfo?.nickname || userInfo?.mobile || '求职者' }}</span>
+                </div>
+                <template #dropdown>
+                    <el-dropdown-menu class="geek-dropdown-menu">
+                    <el-dropdown-item command="/profile"><el-icon><User /></el-icon>个人中心</el-dropdown-item>
+                    <el-dropdown-item command="logout" divided class="logout-item">
+                        <el-icon><SwitchButton /></el-icon>退出登录
+                    </el-dropdown-item>
+                    </el-dropdown-menu>
+                </template>
+                </el-dropdown>
             </template>
-            </el-dropdown>
+
+            <template v-else>
+                <div class="login-action-btn" @click="handleGoLogin">
+                    登录 / 注册
+                </div>
+            </template>
 
         </div>
         </div>
@@ -79,7 +89,7 @@
     <footer class="app-footer">
         <div class="footer-content">
         <p>© 2026 闪聘系统 求职端. All 🌟 Rights Reserved.</p>
-        <p>提供最高效、最便捷的 Java / Vue 全栈人才智慧对接平台</p>
+        <p>提供最高效、最便捷的 Java / Vue 全栈人才智慧对接 platform</p>
         </div>
     </footer>
     </div>
@@ -92,20 +102,31 @@ import {
     Search, Position, ArrowDown, Document, 
     Star, Bell, User, SwitchButton 
 } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useUserStore } from '@/store/modules/user' 
 
 const router = useRouter()
 const route = useRoute()
+const userStore = useUserStore()
 
 const isScrolled = ref(false)
 const searchKeyword = ref('')
+
+// 从 store 中获取用户信息
+const userInfo = computed(() => userStore.userInfo)
+
+// 【核心修复】计算当前用户是否真正登录。
+// 这里优先通过 Token 是否存在来判断。如果你的 store 里判断登录的字段不一样，可以改成 !!userStore.token 等
+const isLogin = computed(() => {
+    return !!userStore.accessToken || !!userInfo.value?.id
+})
 
 // 判断当前是不是在首页
 const isIndexHeader = computed(() => {
     return route.path === '/'
 })
 
-// 控制搜索框显隐：只要不在首页(isIndexHeader为false)，或者在首页且滚动过了，就直接显示
+// 控制搜索框显隐
 const isSearchShow = computed(() => {
     return !isIndexHeader.value || isScrolled.value
 })
@@ -115,7 +136,6 @@ const isMyRoute = computed(() => {
 })
 
 const handleScroll = () => {
-    // 只有在首页时，滚动监听才有实际的切换意义
     if (isIndexHeader.value) {
         isScrolled.value = window.scrollY > 180
     }
@@ -127,26 +147,47 @@ const handleHeaderSearch = () => {
 }
 
 const handleMenuCommand = (targetPath: string) => { router.push(targetPath) }
-const handleUserCommand = (command: string) => {
+
+// 未登录时点击跳转到登录页
+const handleGoLogin = () => {
+    router.push('/login')
+}
+
+// 处理用户下拉菜单事件
+const handleUserCommand = async (command: string) => {
     if (command === 'logout') {
-        ElMessage.success('已安全退出登录')
-        router.push('/')
+        try {
+            await ElMessageBox.confirm('确定要退出当前登录状态吗？', '提示', {
+                confirmButtonText: '确定退出',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+            
+            await userStore.logOutAction()
+            ElMessage.success('已安全退出登录')
+            router.push('/')
+        } catch (error) {
+            if (error !== 'cancel') {
+                console.error('登出失败：', error)
+                ElMessage.error('退出登录失败，请重试')
+            }
+        }
     } else {
         router.push(command)
     }
 }
+
 const switchToCompanyEnd = () => { ElMessage.info('正在平滑切入企业端招聘协同工作台...') }
 
 onMounted(() => { 
     window.addEventListener('scroll', handleScroll, { passive: true }) 
-    // 初始化时先执行一次判断，防止直接刷新非首页时状态不对
     handleScroll()
 })
 onUnmounted(() => { window.removeEventListener('scroll', handleScroll) })
 </script>
 
 <style scoped>
-/* 保持你原本优秀的 CSS 样式不变，只享受上面的逻辑增强带来的丝滑体验 */
+/* 保留原有优秀样式，并追加未登录按钮的精致视觉外观 */
 .layout-container { display: flex; flex-direction: column; min-height: 100vh; background-color: #f7f9fb; }
 .app-header { position: fixed; top: 0; left: 0; width: 100%; height: 68px; z-index: 1000; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
 .header-transparent { background-color: transparent; box-shadow: none; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
@@ -156,6 +197,10 @@ onUnmounted(() => { window.removeEventListener('scroll', handleScroll) })
 .header-transparent .username { color: #ffffff; }
 .header-transparent .bell-icon { color: rgba(255, 255, 255, 0.85); }
 .header-transparent .identity-switch-btn { background: rgba(255, 255, 255, 0.12); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); }
+/* 透明状态下的登录按钮样式 */
+.header-transparent .login-action-btn { color: #ffffff; background: rgba(64, 158, 255, 0.8); }
+.header-transparent .login-action-btn:hover { background: #409eff; box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3); }
+
 .header-glass { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 4px 24px rgba(10, 16, 32, 0.05); border-bottom: 1px solid rgba(235, 238, 245, 0.7); }
 .header-glass .logo { color: #409eff; }
 .header-glass .nav-item { color: #333d57; }
@@ -164,6 +209,10 @@ onUnmounted(() => { window.removeEventListener('scroll', handleScroll) })
 .header-glass .bell-icon { color: #4c5a70; }
 .header-glass .identity-switch-btn { background: #f0f4ff; color: #409eff; border: 1px solid rgba(64, 158, 255, 0.2); }
 .header-glass .identity-switch-btn:hover { background: #409eff; color: #ffffff; }
+/* 磨砂玻璃状态下的登录按钮样式 */
+.header-glass .login-action-btn { color: #ffffff; background: #409eff; }
+.header-glass .login-action-btn:hover { background: #207eff; box-shadow: 0 4px 12px rgba(32, 126, 255, 0.3); }
+
 .header-content { max-width: 1240px; margin: 0 auto; height: 100%; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
 .left-section { display: flex; align-items: center; flex-shrink: 0; }
 .logo { font-size: 20px; font-weight: 700; cursor: pointer; margin-right: 24px; transition: color 0.3s; letter-spacing: 0.5px; }
@@ -190,6 +239,17 @@ onUnmounted(() => { window.removeEventListener('scroll', handleScroll) })
 .user-info-trigger { display: flex; align-items: center; gap: 6px; cursor: pointer; outline: none; }
 .header-avatar { border: 1px solid rgba(255, 255, 255, 0.6); }
 .username { font-size: 13px; }
+
+/* 新增：登录注册按钮微操体验 */
+.login-action-btn {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
 .geek-dropdown-menu { background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; border-radius: 10px !important; border: 1px solid rgba(232, 236, 243, 0.8) !important; padding: 4px !important; box-shadow: 0 8px 24px rgba(10, 16, 32, 0.06) !important; }
 :deep(.el-dropdown-menu__item) { font-size: 12px !important; color: #4c5a70 !important; padding: 6px 14px !important; border-radius: 6px !important; margin: 1px 0 !important; display: flex !important; align-items: center !important; gap: 6px !important; }
 :deep(.el-dropdown-menu__item:hover) { background-color: #f0f6ff !important; color: #409eff !important; }

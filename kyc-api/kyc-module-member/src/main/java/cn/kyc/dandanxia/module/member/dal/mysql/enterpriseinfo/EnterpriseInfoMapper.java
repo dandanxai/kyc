@@ -7,6 +7,8 @@ import cn.kyc.dandanxia.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.kyc.dandanxia.framework.mybatis.core.mapper.BaseMapperX;
 import cn.kyc.dandanxia.module.member.controller.app.auth.vo.AppEnterpriseInfoPageReqVO;
 import cn.kyc.dandanxia.module.member.dal.dataobject.enterpriseinfo.EnterpriseInfoDO;
+import cn.kyc.dandanxia.module.member.dal.dataobject.user.MemberUserDO;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -16,6 +18,10 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface EnterpriseInfoMapper extends BaseMapperX<EnterpriseInfoDO> {
+
+    default EnterpriseInfoDO selectByMobile(String mobile) {
+        return selectOne(EnterpriseInfoDO::getMobile, mobile);
+    }
 
     default PageResult<EnterpriseInfoDO> selectPage(AppEnterpriseInfoPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<EnterpriseInfoDO>()
@@ -48,4 +54,13 @@ public interface EnterpriseInfoMapper extends BaseMapperX<EnterpriseInfoDO> {
                 .orderByDesc(EnterpriseInfoDO::getId));
     }
 
+    default EnterpriseInfoDO selectByAccount(String account) {
+        return selectOne(new LambdaQueryWrapper<EnterpriseInfoDO>()
+                .eq(EnterpriseInfoDO::getMobile, account)
+                .or()
+                .eq(EnterpriseInfoDO::getEmail, account)
+                .or()
+                .eq(EnterpriseInfoDO::getNickname, account)
+                .last("LIMIT 1"));
+    }
 }

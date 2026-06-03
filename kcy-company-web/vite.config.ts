@@ -13,7 +13,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0', // 允许通过局域网 IP 访问
-    port: 5173,      // 前端运行端口
+    port: 5174,      // 前端运行端口
     proxy: {
       // 拦截所有以 /api 开头的请求
       '/api': {

@@ -4,8 +4,7 @@ import java.util.*;
 import javax.validation.*;
 import cn.kyc.dandanxia.framework.common.pojo.PageResult;
 import cn.kyc.dandanxia.framework.common.pojo.PageParam;
-import cn.kyc.dandanxia.module.member.controller.app.auth.vo.AppEnterpriseInfoPageReqVO;
-import cn.kyc.dandanxia.module.member.controller.app.auth.vo.AppEnterpriseInfoSaveReqVO;
+import cn.kyc.dandanxia.module.member.controller.app.auth.vo.*;
 import cn.kyc.dandanxia.module.member.dal.dataobject.enterpriseinfo.EnterpriseInfoDO;
 
 /**
@@ -14,6 +13,34 @@ import cn.kyc.dandanxia.module.member.dal.dataobject.enterpriseinfo.EnterpriseIn
  * @author 芋道源码
  */
 public interface EnterpriseInfoService {
+
+
+
+    /**
+     * 企业认证注册
+     */
+    AppAuthLoginRespVO register(@Valid AppEnterpriseInfoSaveReqVO reqVO);
+
+    /**
+     * 手机 + 密码登录
+     *
+     * @param reqVO 登录信息
+     * @return 登录结果
+     */
+    AppAuthLoginRespVO login(@Valid AppAuthLoginReqVO reqVO);
+
+    boolean isPasswordMatch(String rawPassword, String encodedPassword);
+
+    /**
+     * 更新用户的最后登陆信息
+     *
+     * @param id      用户编号
+     * @param loginIp 登陆 IP
+     */
+    void updateUserLogin(Long id, String loginIp);
+
+
+    EnterpriseInfoDO createRegisterUser(AppEnterpriseInfoSaveReqVO reqVO, String registerIp, Integer terminal);
 
     /**
      * 创建企业信息
@@ -60,4 +87,18 @@ public interface EnterpriseInfoService {
      */
     PageResult<EnterpriseInfoDO> getEnterpriseInfoPage(AppEnterpriseInfoPageReqVO pageReqVO);
 
+    /**
+     * 基于 token 退出登录
+     *
+     * @param token token
+     */
+    void logout(String token);
+
+    /**
+     * 刷新访问令牌
+     *
+     * @param refreshToken 刷新令牌
+     * @return 登录结果
+     */
+    AppAuthLoginRespVO refreshToken(String refreshToken);
 }

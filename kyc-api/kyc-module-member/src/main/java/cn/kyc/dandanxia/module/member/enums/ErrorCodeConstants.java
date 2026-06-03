@@ -59,6 +59,7 @@ public interface ErrorCodeConstants {
 
 
 
-    ErrorCode ENTERPRISE_INFO_NOT_EXISTS = new ErrorCode(null, "企业信息不存在");
+    ErrorCode ENTERPRISE_INFO_NOT_EXISTS = new ErrorCode(1_004_013_000, "企业信息不存在");
+    ErrorCode ENTERPRISE_NOT_EXISTS = new ErrorCode(1_004_013_001, "无法查询企业信息，请登录");
 
 }
