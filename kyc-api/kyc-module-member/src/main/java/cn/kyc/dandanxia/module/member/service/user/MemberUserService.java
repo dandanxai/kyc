@@ -91,6 +91,9 @@ public interface MemberUserService {
      */
     void updateUser(Long userId, AppMemberUserUpdateReqVO reqVO);
 
+
+    void updateUserAvatar(Long loginUserId, AppMemberUserUpdateAvatarReqVO reqVO);
+
     /**
      * 【会员】修改手机，基于手机验证码
      *
@@ -191,4 +194,5 @@ public interface MemberUserService {
      * 企业认证专用：创建用户并保存企业信息
      */
     MemberUserDO createRegisterUser(AppAuthRegisterReqVO reqVO, String registerIp, Integer terminal);
+
 }

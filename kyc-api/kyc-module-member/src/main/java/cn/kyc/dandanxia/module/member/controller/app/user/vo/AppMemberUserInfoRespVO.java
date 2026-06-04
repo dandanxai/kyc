@@ -1,15 +1,46 @@
 package cn.kyc.dandanxia.module.member.controller.app.user.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
+
+import static cn.kyc.dandanxia.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 @Schema(description = "用户 APP - 用户个人信息 Response VO")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AppMemberUserInfoRespVO {
+
+
+
+    @Schema(description = "所在省", example = "安徽省")
+    private String province;
+
+    @Schema(description = "所在市", example = "滁州市")
+    private String city;
+
+    @Schema(description = "所在区/县", example = "琅琊区")
+    private String county;
+
+    @Schema(description = "出生日期", example = "2026-06-03 00:00:00")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime birthday;
+
+    @Schema(description = "真实姓名", requiredMode = Schema.RequiredMode.REQUIRED, example = "张三")
+    @NotBlank(message = "真实姓名不能为空")
+    @Size(max = 30, message = "真实姓名长度不能超过 30 个字符")
+    private String name;
 
     @Schema(description = "用户编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long id;

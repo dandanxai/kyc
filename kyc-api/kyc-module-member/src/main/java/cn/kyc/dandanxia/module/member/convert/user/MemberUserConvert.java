@@ -5,6 +5,7 @@ import cn.kyc.dandanxia.module.member.api.user.dto.MemberUserRespDTO;
 import cn.kyc.dandanxia.module.member.controller.admin.user.vo.MemberUserRespVO;
 import cn.kyc.dandanxia.module.member.controller.admin.user.vo.MemberUserUpdateReqVO;
 import cn.kyc.dandanxia.module.member.controller.app.user.vo.AppMemberUserInfoRespVO;
+import cn.kyc.dandanxia.module.member.controller.app.user.vo.AppMemberUserUpdateReqVO;
 import cn.kyc.dandanxia.module.member.convert.address.AddressConvert;
 import cn.kyc.dandanxia.module.member.dal.dataobject.group.MemberGroupDO;
 import cn.kyc.dandanxia.module.member.dal.dataobject.level.MemberLevelDO;
@@ -32,7 +33,8 @@ public interface MemberUserConvert {
     @Mappings({
             @Mapping(source = "level", target = "level"),
             @Mapping(source = "bean.id", target = "id"),
-            @Mapping(source = "bean.experience", target = "experience")
+            @Mapping(source = "bean.experience", target = "experience"),
+            @Mapping(source = "bean.name", target = "name")
     })
     AppMemberUserInfoRespVO convert(MemberUserDO bean, MemberLevelDO level);
 
@@ -65,4 +67,5 @@ public interface MemberUserConvert {
         return result;
     }
 
+    MemberUserDO convert(AppMemberUserUpdateReqVO bean);
 }

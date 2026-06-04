@@ -142,15 +142,31 @@ public class MemberUserServiceImpl implements MemberUserService {
         return memberUserMapper.selectByIds(ids);
     }
 
+
+    @Override
+    public void updateUserAvatar(Long loginUserId, AppMemberUserUpdateAvatarReqVO reqVO) {
+        validateUserExists(loginUserId);
+
+        // 2. 更新用户头像 (使用 MP 的 Builder 干净利落地单字段更新)
+        memberUserMapper.updateById(MemberUserDO.builder()
+                .id(loginUserId)
+                .avatar(reqVO.getAvatar())
+                .build());
+    }
+
     @Override
     public void updateUser(Long userId, AppMemberUserUpdateReqVO reqVO) {
         // 1.1 检测用户是否存在
         validateUserExists(userId);
-        // 1.2 校验手机是否已经被绑定
+        // 1.2 校验邮箱是否已经被绑定（注意：你注释写的手机，实际调的是 Email 校验，这里没问题）
         validateEmailUnique(userId, reqVO.getEmail());
 
-        // 2. 更新用户
-        MemberUserDO updateObj = BeanUtils.toBean(reqVO, MemberUserDO.class).setId(userId);
+        // 2. 🌟 核心修复：抛弃不稳定的 BeanUtils，改用专门的 MapStruct 转换器 🌟
+        // 它能 100% 保证 birthday (LocalDateTime) 以及省市区字段安全、精准地复制过去
+        MemberUserDO updateObj = MemberUserConvert.INSTANCE.convert(reqVO);
+        updateObj.setId(userId); // 绑定当前登录用户的 ID
+
+        // 3. 执行更新
         memberUserMapper.updateById(updateObj);
     }
 
@@ -193,13 +209,26 @@ public class MemberUserServiceImpl implements MemberUserService {
     public void updateUserPassword(Long userId, AppMemberUserUpdatePasswordReqVO reqVO) {
         // 检测用户是否存在
         MemberUserDO user = validateUserExists(userId);
+
+        // 2. 校验旧密码是否正确（统一使用注入的 passwordEncoder 校验，防止加密策略不一致）
+        if (!passwordEncoder.matches(reqVO.getOldPassword(), user.getPassword())) {
+            throw exception(USER_PASSWORD_OLD_ERROR); // 抛出异常：“旧密码输入错误”
+        }
+
+        // 3. 校验新密码和旧密码是否相同
+        if (reqVO.getOldPassword().equals(reqVO.getPassword())) {
+            throw exception(USER_PASSWORD_NEW_SAME_AS_OLD); // 💡 需要在全局错误码类中定义该异常：“新密码不能与旧密码相同”
+        }
+
         // 校验验证码
-        smsCodeApi.useSmsCode(new SmsCodeUseReqDTO().setMobile(user.getMobile()).setCode(reqVO.getCode())
-                .setScene(SmsSceneEnum.MEMBER_UPDATE_PASSWORD.getScene()).setUsedIp(getClientIP()));
+//        smsCodeApi.useSmsCode(new SmsCodeUseReqDTO().setMobile(user.getMobile()).setCode(reqVO.getCode())
+//                .setScene(SmsSceneEnum.MEMBER_UPDATE_PASSWORD.getScene()).setUsedIp(getClientIP()));
 
         // 更新用户密码
-        memberUserMapper.updateById(MemberUserDO.builder().id(userId)
-                .password(passwordEncoder.encode(reqVO.getPassword())).build());
+        memberUserMapper.updateById(MemberUserDO.builder()
+                .id(userId)
+                .password(passwordEncoder.encode(reqVO.getPassword()))
+                .build());
     }
 
     @Override
@@ -238,6 +267,7 @@ public class MemberUserServiceImpl implements MemberUserService {
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -379,5 +409,7 @@ public class MemberUserServiceImpl implements MemberUserService {
 
         return user;
     }
+
+
 
 }

@@ -62,4 +62,11 @@ public interface ErrorCodeConstants {
     ErrorCode ENTERPRISE_INFO_NOT_EXISTS = new ErrorCode(1_004_013_000, "企业信息不存在");
     ErrorCode ENTERPRISE_NOT_EXISTS = new ErrorCode(1_004_013_001, "无法查询企业信息，请登录");
 
+
+    ErrorCode USER_PASSWORD_OLD_ERROR = new ErrorCode(1_004_014_000, "旧密码输入错误");
+    ErrorCode USER_PASSWORD_NEW_SAME_AS_OLD = new ErrorCode(1_004_014_001, "新密码不能与旧密码相同");
+
+
+
+    ErrorCode RESUME_NOT_EXISTS = new ErrorCode(1_004_015_000, "用户简历档案不存在");
 }

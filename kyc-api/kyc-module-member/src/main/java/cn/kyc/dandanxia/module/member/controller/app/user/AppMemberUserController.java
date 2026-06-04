@@ -40,6 +40,13 @@ public class AppMemberUserController {
         return success(MemberUserConvert.INSTANCE.convert(user, level));
     }
 
+    @PutMapping("/update-avatar")
+    @Operation(summary = "修改用户头像")
+    public CommonResult<Boolean> updateUserAvatar(@Valid AppMemberUserUpdateAvatarReqVO reqVO) {
+        userService.updateUserAvatar(getLoginUserId(), reqVO);
+        return success(true);
+    }
+
     @PutMapping("/update")
     @Operation(summary = "修改基本信息")
     public CommonResult<Boolean> updateUser(@RequestBody @Valid AppMemberUserUpdateReqVO reqVO) {
