@@ -1,13 +1,20 @@
 package cn.kyc.dandanxia.module.member.service.resume;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.kyc.dandanxia.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.kyc.dandanxia.module.member.controller.app.resume.mq.producer.ResumeProducer;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.core.type.TypeReference;
+import cn.hutool.core.util.StrUtil;
+import cn.kyc.dandanxia.framework.common.util.object.BeanUtils;
 
 import java.util.*;
 import cn.kyc.dandanxia.module.member.controller.app.resume.vo.*;
@@ -50,14 +57,13 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setParseStatus(1); // 初始化状态为：1-解析中
         resumeMapper.insert(resume);
 
-        // 3. 🌟 按照芋道规范，调用生产者发送消息到队列中
         try {
             resumeProducer.sendResumeParseMessage(resume.getId(), resume.getFilePath(), loginUserId);
             log.info("【芋道规范】成功将简历消息压入 RabbitMQ 队列，等待 Python 消费。简历ID: {}", resume.getId());
         } catch (Exception e) {
-            log.error("【芋道规范】RabbitMQ 消息投递崩溃，进入数据降级。简历ID: {}", resume.getId(), e);
-            // 降级：MQ 如果不通，及时把状态改为 3-解析失败
             resumeMapper.updateById(new ResumeDO().setId(resume.getId()).setParseStatus(3));
+
+            throw exception(RESUME_SENG_MQ_ERROR);
         }
 
         return resume.getId();
@@ -155,6 +161,56 @@ public class ResumeServiceImpl implements ResumeService {
             activeObj.setIsActive(1);
             resumeMapper.updateById(activeObj);
         }
+    }
+
+    @Override
+    public AppResumeDetailRespVO getResumeDetail(Long id) {
+        // 1. 安全数据权限审计
+        Long loginUserId = getLoginUserId();
+        ResumeDO resume = resumeMapper.selectOne(new LambdaQueryWrapperX<ResumeDO>()
+                .eq(ResumeDO::getId, id)
+                .eq(ResumeDO::getUserId, loginUserId)
+        );
+
+        if (resume == null) {
+            return null;
+        }
+
+        // 2. 浅拷贝已有独立基础字段 (name, phone, skillTags, achievements 这一波直接同步)
+        AppResumeDetailRespVO respVO = BeanUtils.toBean(resume, AppResumeDetailRespVO.class);
+
+        // 3. 🚀 强力破局：深度熔炼大文本，补全所有前端渲染所需的黄金碎片
+        if (resume.getParseStatus() == 2 && StrUtil.isNotEmpty(resume.getParsedJson())) {
+            try {
+                JSONObject jsonObject = JSONUtil.parseObj(resume.getParsedJson());
+
+                // 🌟 【绝密补全】补充外层 VO 缺失的数据提取映射
+                respVO.setAge(jsonObject.getInt("age"));                         // 补上你的 21 岁！
+                respVO.setGender(jsonObject.getStr("gender"));                   // 补上性别 “男”
+                respVO.setCurrentCity(jsonObject.getStr("current_city"));         // 当前城市
+
+                // 补全其它可能属于 json 的非独立列字段
+                respVO.setSelfEvaluation(jsonObject.getStr("self_evaluation"));
+                respVO.setExpectedPosition(jsonObject.getStr("expected_position"));
+                respVO.setSchool(jsonObject.getStr("school"));
+                respVO.setMajor(jsonObject.getStr("major"));
+                respVO.setAvailability(jsonObject.getStr("availability"));
+
+                // 秒变基础字符串数组 List<String>
+                respVO.setCoreSkills(jsonObject.getBeanList("core_skills", String.class));
+                respVO.setCertifications(jsonObject.getBeanList("certifications", String.class));
+                respVO.setAwards(jsonObject.getBeanList("awards", String.class));
+
+                // 优雅转换复杂的履历对象数组
+                respVO.setWorkExperiences(jsonObject.getBeanList("work_experience", AppResumeDetailRespVO.WorkExperienceVO.class));
+                respVO.setProjectExperiences(jsonObject.getBeanList("project_experience", AppResumeDetailRespVO.ProjectExperienceVO.class));
+
+            } catch (Exception e) {
+                log.error("⚠️ [ServiceImpl] 简历 id: {} 的 parsedJson 深度补全解构失败，原因: {}", id, e.getMessage());
+            }
+        }
+
+        return respVO;
     }
 
 }

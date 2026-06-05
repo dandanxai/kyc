@@ -34,10 +34,10 @@ public class AppResumeRespVO {
 
     @Schema(description = "技能点", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "[\"Spring Boot\", \"Vue3\", \"MyBatis-Plus\", \"MySQL\", \"UniApp\"]")
     @ExcelProperty("技能点")
-    private List<String> skills;
+    private List<String> skillTags;
 
     @Schema(description = "简历重点核心", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "包含《乐行旅途Mini-Program》及《凌云智控物联网平台》完整全栈研发经历。")
     @ExcelProperty("简历重点核心")
-    private String coreHighlight;
+    private String achievements;
 
 }

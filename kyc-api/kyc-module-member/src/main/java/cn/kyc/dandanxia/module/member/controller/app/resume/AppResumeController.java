@@ -77,9 +77,8 @@ public class AppResumeController {
     @GetMapping("/get")
     @Operation(summary = "获得用户简历档案")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    public CommonResult<AppResumeRespVO> getResume(@RequestParam("id") Long id) {
-        ResumeDO resume = resumeService.getResume(id);
-        return success(BeanUtils.toBean(resume, AppResumeRespVO.class));
+    public CommonResult<AppResumeDetailRespVO> getResume(@RequestParam("id") Long id) {
+        return success(resumeService.getResumeDetail(id));
     }
 
     @GetMapping("/page")

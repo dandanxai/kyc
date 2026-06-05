@@ -60,4 +60,6 @@ public interface ResumeService {
     PageResult<ResumeDO> getResumePage(AppResumePageReqVO pageReqVO);
 
     void updateResumeActive(@Valid AppResumeUpdateActiveReqVO updateActiveReqVO);
+
+    AppResumeDetailRespVO getResumeDetail(Long id);
 }

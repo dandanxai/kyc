@@ -39,8 +39,8 @@
             <div class="card-body">
             <div class="title-row">
                 <div class="title-left">
-                <h4>{{ resume.fileName }}</h4>
-                <el-tag v-if="resume.isActive === 1" size="small" type="success" effect="dark">默认投递</el-tag>
+                    <h4>{{ resume.fileName.replace(/\.(pdf|docx|doc|xlsx|xls)$/i, '') }}</h4>     
+                    <el-tag v-if="resume.isActive === 1" size="small" type="success" effect="dark">默认投递</el-tag>
                 </div>
                 <span class="update-time">上传于：{{ formatDate(resume.createTime) }}</span>
             </div>
@@ -74,15 +74,15 @@
                 <div class="tech-stack-preview">
                 <span class="preview-label">技术栈聚焦：</span>
                 <div class="tags-wrapper">
-                    <template v-if="resume.skills && resume.skills.length > 0">
-                    <span v-for="tag in resume.skills" :key="tag" class="mini-tech-tag">{{ tag }}</span>
+                    <template v-if="resume.skillTags && resume.skillTags.length > 0">
+                    <span v-for="tag in resume.skillTags" :key="tag" class="mini-tech-tag">{{ tag }}</span>
                     </template>
                     <span v-else class="empty-placeholder-text">暂无提取到技能标签</span>
                 </div>
                 </div>
                 <div class="resume-summary">
                 <span class="summary-label">核心项目：</span>
-                <p class="summary-text">{{ resume.coreHighlight || '未提取到核心项目亮点描述。' }}</p>
+                <p class="summary-text">{{ resume.achievements || '未提取到核心项目亮点描述。' }}</p>
                 </div>
             </div>
             </div>

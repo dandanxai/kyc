@@ -207,7 +207,7 @@ const startRealUploadAndParse = async () => {
                 filePath: ossFilePath,              
                 fileType: fileExtension,           
                 fileSize: item.rawFile.size,       
-                parseStatus: 0                     
+                // parseStatus: 0                     
             }
 
             // 🚀 2. 调用创建简历接口
