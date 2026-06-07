@@ -1,0 +1,15 @@
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\config\KycDataPermissionAutoConfiguration.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\config\KycDeptDataPermissionAutoConfiguration.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\annotation\DataPermission.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\aop\DataPermissionAnnotationAdvisor.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\aop\DataPermissionAnnotationInterceptor.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\aop\DataPermissionContextHolder.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\db\DataPermissionRuleHandler.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\rule\DataPermissionRule.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\rule\DataPermissionRuleFactory.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\rule\DataPermissionRuleFactoryImpl.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\rule\dept\DeptDataPermissionRule.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\rule\dept\DeptDataPermissionRuleCustomizer.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\rule\dept\package-info.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\core\util\DataPermissionUtils.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\main\java\cn\kyc\dandanxia\framework\datapermission\package-info.java

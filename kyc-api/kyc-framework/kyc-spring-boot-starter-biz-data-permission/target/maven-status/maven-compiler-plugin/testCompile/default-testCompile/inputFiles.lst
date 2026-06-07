@@ -1,0 +1,6 @@
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\test\java\cn\kyc\dandanxia\framework\datapermission\core\aop\DataPermissionAnnotationInterceptorTest.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\test\java\cn\kyc\dandanxia\framework\datapermission\core\aop\DataPermissionContextHolderTest.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\test\java\cn\kyc\dandanxia\framework\datapermission\core\db\DataPermissionRuleHandlerTest.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\test\java\cn\kyc\dandanxia\framework\datapermission\core\rule\DataPermissionRuleFactoryImplTest.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\test\java\cn\kyc\dandanxia\framework\datapermission\core\rule\dept\DeptDataPermissionRuleTest.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-biz-data-permission\src\test\java\cn\kyc\dandanxia\framework\datapermission\core\util\DataPermissionUtilsTest.java

@@ -180,7 +180,7 @@ const formatSize = (bytes: number) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-// 🌟 🌟 🌟 修改后的 startRealUploadAndParse 方法
+// 🌟 🌟 🌟 满血对齐 userId 的 startRealUploadAndParse 方法
 const startRealUploadAndParse = async () => {
     const uploadTargets = localFiles.value.filter(f => f.status === 'ready' || f.status === 'error')
     if (uploadTargets.length === 0) return
@@ -188,39 +188,37 @@ const startRealUploadAndParse = async () => {
     isBatchUploading.value = true
     let successCounter = 0
 
+    // 同样，这里模拟拿到当前真正登录的用户 ID
+    const currentUserId = 1 
+
     await Promise.all(
         uploadTargets.map(async (item) => {
         item.status = 'uploading'
         try {
             // 🚀 1. 上传 OSS
             const fileRes = await InfraFileApi.uploadFile(item.rawFile)
-            
-            // 通常 uploadFile 返回的是原始封装或者直接返回 URL 字符串
-            // 这里兼容两种情况：fileRes 本身是字符串，或者 fileRes.data 是字符串
             const ossFilePath = typeof fileRes === 'string' ? fileRes : fileRes?.data
             
             if (ossFilePath) {
             const fileExtension = item.rawFile.name.split('.').pop() || ''
 
+            // 🌟 核心破局点：把 userId 直接拧进表单传给 Java 存入达梦！
             const resumeForm = {
+                userId: currentUserId,             // 👈 完美注入用户身份凭证
                 fileName: item.rawFile.name,       
                 filePath: ossFilePath,              
                 fileType: fileExtension,           
                 fileSize: item.rawFile.size,       
-                // parseStatus: 0                     
             }
 
-            // 🚀 2. 调用创建简历接口
+            // 🚀 2. 调用创建简历接口入库
             const dbRes = await ResumeApi.createResume(resumeForm)
             
-            // 💡 核心修正：兼容芋道两种返回格式
-            // 情况A：框架自动解包了，dbRes 直接就是生成的 ID 数字 (例如: 2)
-            // 情况B：未解包，包含标准的封装对象形式 (dbRes.code === 0)
             if (
                 (typeof dbRes === 'number' && dbRes > 0) || 
                 (dbRes && (dbRes.code === 0 || dbRes.data))
             ) {
-                item.status = 'success' // 完美标记成功！
+                item.status = 'success' 
                 successCounter++
             } else {
                 item.status = 'error'
@@ -242,8 +240,8 @@ const startRealUploadAndParse = async () => {
 
     // 🏁 最终检查批量成果
     if (successCounter === uploadTargets.length) {
-        ElMessage.success('所有简历已成功上传并生成档案！')
-        emit('upload-success') 
+        ElMessage.success('所有简历已成功存入解析队列！')
+        emit('upload-success') // 触发外层刷新
         setTimeout(() => {
         dialogVisible.value = false
         }, 1000)

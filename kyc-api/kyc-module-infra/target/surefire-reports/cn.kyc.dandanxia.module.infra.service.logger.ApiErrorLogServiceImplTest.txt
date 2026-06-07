@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: cn.kyc.dandanxia.module.infra.service.logger.ApiErrorLogServiceImplTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.394 s -- in cn.kyc.dandanxia.module.infra.service.logger.ApiErrorLogServiceImplTest

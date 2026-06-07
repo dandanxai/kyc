@@ -1,0 +1,10 @@
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-test\src\main\java\cn\kyc\dandanxia\framework\test\config\RedisTestConfiguration.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-test\src\main\java\cn\kyc\dandanxia\framework\test\config\SqlInitializationTestConfiguration.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-test\src\main\java\cn\kyc\dandanxia\framework\test\core\ut\BaseDbAndRedisUnitTest.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-test\src\main\java\cn\kyc\dandanxia\framework\test\core\ut\BaseDbUnitTest.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-test\src\main\java\cn\kyc\dandanxia\framework\test\core\ut\BaseMockitoUnitTest.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-test\src\main\java\cn\kyc\dandanxia\framework\test\core\ut\BaseRedisUnitTest.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-test\src\main\java\cn\kyc\dandanxia\framework\test\core\ut\package-info.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-test\src\main\java\cn\kyc\dandanxia\framework\test\core\util\AssertUtils.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-test\src\main\java\cn\kyc\dandanxia\framework\test\core\util\RandomUtils.java
+D:\Desktop\kyc\kyc-api\kyc-framework\kyc-spring-boot-starter-test\src\main\java\cn\kyc\dandanxia\framework\test\package-info.java

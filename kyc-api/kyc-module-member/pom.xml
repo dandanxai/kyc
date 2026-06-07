@@ -18,6 +18,11 @@
     </description>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-neo4j</artifactId>
+        </dependency>
         <dependency>
             <groupId>cn.kyc.boot</groupId>
             <artifactId>kyc-module-system</artifactId>

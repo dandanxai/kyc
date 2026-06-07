@@ -1,0 +1,4 @@
+cn.kyc.dandanxia.framework.idempotent.config.KycIdempotentConfiguration
+cn.kyc.dandanxia.framework.lock4j.config.KycLock4jConfiguration
+cn.kyc.dandanxia.framework.ratelimiter.config.KycRateLimiterConfiguration
+cn.kyc.dandanxia.framework.signature.config.KycApiSignatureAutoConfiguration

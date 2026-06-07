@@ -1,0 +1,13 @@
+cn\kyc\dandanxia\framework\test\core\ut\BaseDbUnitTest$Application.class
+cn\kyc\dandanxia\framework\test\package-info.class
+cn\kyc\dandanxia\framework\test\config\RedisTestConfiguration.class
+cn\kyc\dandanxia\framework\test\core\ut\package-info.class
+cn\kyc\dandanxia\framework\test\core\ut\BaseDbUnitTest.class
+cn\kyc\dandanxia\framework\test\core\ut\BaseRedisUnitTest$Application.class
+cn\kyc\dandanxia\framework\test\core\util\RandomUtils.class
+cn\kyc\dandanxia\framework\test\core\util\AssertUtils.class
+cn\kyc\dandanxia\framework\test\config\SqlInitializationTestConfiguration.class
+cn\kyc\dandanxia\framework\test\core\ut\BaseMockitoUnitTest.class
+cn\kyc\dandanxia\framework\test\core\ut\BaseDbAndRedisUnitTest$Application.class
+cn\kyc\dandanxia\framework\test\core\ut\BaseDbAndRedisUnitTest.class
+cn\kyc\dandanxia\framework\test\core\ut\BaseRedisUnitTest.class

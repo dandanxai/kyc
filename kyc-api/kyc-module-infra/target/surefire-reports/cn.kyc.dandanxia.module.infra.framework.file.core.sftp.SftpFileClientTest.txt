@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: cn.kyc.dandanxia.module.infra.framework.file.core.sftp.SftpFileClientTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 s -- in cn.kyc.dandanxia.module.infra.framework.file.core.sftp.SftpFileClientTest

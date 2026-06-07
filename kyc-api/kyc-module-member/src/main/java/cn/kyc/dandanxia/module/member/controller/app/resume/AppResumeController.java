@@ -81,6 +81,13 @@ public class AppResumeController {
         return success(resumeService.getResumeDetail(id));
     }
 
+    @GetMapping("/get-graph")
+    @Operation(summary = "获得用户简历档案")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    public CommonResult<AppResumeGraphRespVO> getResumeGraph(@RequestParam("id") Long id) {
+        return CommonResult.success(resumeService.getResumeGraph(id));
+    }
+
     @GetMapping("/page")
     @Operation(summary = "获得用户简历档案分页")
     public CommonResult<PageResult<AppResumeRespVO>> getResumePage(@Valid AppResumePageReqVO pageReqVO) {

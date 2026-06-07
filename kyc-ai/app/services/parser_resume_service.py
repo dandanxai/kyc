@@ -9,13 +9,15 @@ import xlrd
 from app.config.settings import settings
 from app.config.prompts import ResumePrompts
 from app.dao.kyc_resume import ResumeDao
-
+from app.dao.resume_graph_dao import ResumeGraphDao
 
 class ParserResumeService:
     @classmethod
     def process_task(cls, task_data: dict) -> bool:
         resume_id = task_data.get("id")
         file_path = task_data.get("filePath")
+        # 🌟 核心点：从 MQ 任务中捞出上传人的 userId
+        user_id = task_data.get("userId")
 
         if not resume_id or not file_path:
             print(f"❌ [解析服务] 任务数据缺失，无法处理: {task_data}")
@@ -36,17 +38,37 @@ class ParserResumeService:
             print(json.dumps(parsed_json, indent=4, ensure_ascii=False))
             print("=================================================================\n")
 
-            # =================================================================
-            # 3. 🌟 新增这一步：调用 DAO 层，直接将解析结果落库！
-            # =================================================================
+            # 3. 调用 DAO 层，直接将解析结果落库达梦！
             ResumeDao.update_parsed_result(resume_id, parsed_json)
-
             print(f"🎉 [解析服务] 任务 ID: {resume_id} 智能化全格式解析并落库成功！")
+
+            # =================================================================
+            # 🌟 核心新增：落库成功后，走内部网络接口同步触发 Java 端的 SSE 长连接推送！
+            # =================================================================
+            if user_id:
+                try:
+                    # 🚀 1. 统一换成大一统的统一路径点
+                    notify_url = "http://127.0.0.1:48080/app-api/member/sse/notify-success"
+
+                    # 🚀 2. 弹药包升级：消除歧义，统一叫 dataId，并打上简历 RESUME 钢印
+                    payload = {
+                        "userId": int(user_id),
+                        "dataId": str(resume_id),
+                        "taskType": "RESUME"
+                    }
+
+                    # 轰炸 Java 后端
+                    response = requests.post(notify_url, json=payload, timeout=5)
+                    print(f"📡 [📡通知信道] Java 响应状态: {response.status_code}, 返回内容: {response.text}")
+                except Exception as ne:
+                    print(f"⚠️ [📡通知信道] 触发 Java SSE 广播时发生网络异常: {str(ne)}")
+            else:
+                print("⚠️ [📡通知信道] 未能从任务体中获取到 userId，略过实时通知。")
+
             return True
 
         except Exception as e:
             print(f"💥 [解析服务] 处理任务 ID: {resume_id} 时发生异常: {str(e)}")
-            # 这里其实还可以加一行代码：ResumeDao.update_status_failed(resume_id) 把状态改成 3(失败)
             raise e
 
     @classmethod
@@ -207,8 +229,8 @@ if __name__ == "__main__":
     print("▶️ 开始全格式解析 Service 业务层独立单体测试...")
     # 🌟 修复：这里的链接已经被我清理成了干净的原始纯字符串链接！
     test_task = {
-        "id": 14,
-        "filePath": "[https://dandanxia-kyc.oss-cn-beijing.aliyuncs.com/20260605/直聘简历-未命名.pdf](https://dandanxia-kyc.oss-cn-beijing.aliyuncs.com/20260605/直聘简历-未命名.pdf)",
-        "userId": 2
+        "id": 32,
+        "filePath": "[https://dandanxia-kyc.oss-cn-beijing.aliyuncs.com/20260606/1780744359687_87a9a2fc7dbc4dd1a638b0fd417953fa.pdff](https://dandanxia-kyc.oss-cn-beijing.aliyuncs.com/20260606/1780744359687_87a9a2fc7dbc4dd1a638b0fd417953fa.pdf)",
+        "userId": 1
     }
     ParserResumeService.process_task(test_task)

@@ -1,18 +1,20 @@
 package cn.kyc.dandanxia.module.member.service.resume;
 
-import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import cn.kyc.dandanxia.framework.common.exception.util.ServiceExceptionUtil;
 import cn.kyc.dandanxia.framework.mybatis.core.query.LambdaQueryWrapperX;
-import cn.kyc.dandanxia.module.member.controller.app.resume.mq.producer.ResumeProducer;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import cn.kyc.dandanxia.module.member.utils.mq.producer.ResumeGraphProducer;
+import cn.kyc.dandanxia.module.member.utils.mq.producer.ResumeProducer;
+import cn.kyc.dandanxia.module.member.utils.neo4j.Neo4jGraphUtils;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.transaction.annotation.Transactional;
-import com.fasterxml.jackson.core.type.TypeReference;
 import cn.hutool.core.util.StrUtil;
 import cn.kyc.dandanxia.framework.common.util.object.BeanUtils;
 
@@ -20,14 +22,11 @@ import java.util.*;
 import cn.kyc.dandanxia.module.member.controller.app.resume.vo.*;
 import cn.kyc.dandanxia.module.member.dal.dataobject.resume.ResumeDO;
 import cn.kyc.dandanxia.framework.common.pojo.PageResult;
-import cn.kyc.dandanxia.framework.common.pojo.PageParam;
-import cn.kyc.dandanxia.framework.common.util.object.BeanUtils;
 
 import cn.kyc.dandanxia.module.member.dal.mysql.resume.ResumeMapper;
 
 import static cn.kyc.dandanxia.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.kyc.dandanxia.framework.common.util.collection.CollectionUtils.convertList;
-import static cn.kyc.dandanxia.framework.common.util.collection.CollectionUtils.diffList;
 import static cn.kyc.dandanxia.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.kyc.dandanxia.module.member.enums.ErrorCodeConstants.*;
 
@@ -46,6 +45,12 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Resource
     private ResumeProducer resumeProducer;
+
+    @Resource
+    private ResumeGraphProducer resumeGraphProducer;
+
+    @Resource
+    private Neo4jClient neo4jClient;
 
     @Override
     public Long createResume(AppResumeSaveReqVO createReqVO) {
@@ -206,11 +211,60 @@ public class ResumeServiceImpl implements ResumeService {
                 respVO.setProjectExperiences(jsonObject.getBeanList("project_experience", AppResumeDetailRespVO.ProjectExperienceVO.class));
 
             } catch (Exception e) {
-                log.error("⚠️ [ServiceImpl] 简历 id: {} 的 parsedJson 深度补全解构失败，原因: {}", id, e.getMessage());
+                throw exception(RESUME_PARSE_ERROR);
+//                log.error("⚠️ [ServiceImpl] 简历 id: {} 的 parsedJson 深度补全解构失败，原因: {}", id, e.getMessage());
             }
         }
 
         return respVO;
+    }
+
+    @Override
+    public AppResumeGraphRespVO getResumeGraph(Long id) {
+        // 1. 🌟 锁死独立简历端 RESUME_ 前缀防混淆钢印（像素级对齐 Python 新版主键隔离规约）
+        String resumeGraphId = "RESUME_" + id;
+
+        // 2. 🌟 满血升级版 Cypher 织网图捞取命令：
+        // A. 先从独立的简历原点 (r:Resume) 出发，通过 HAS_TRACK 关系把【前端技术、后端技术、实战项目、重磅荣誉】4大树干捞出来。
+        // B. 再利用 OPTIONAL MATCH 顺着 4 大树干把所有的 Skill、Project、Award 细节叶子节点抓上来。
+        // C. 顺便利用 [r3:USING_TECH] 强行穿透【项目 ➔ 技术】的横向跨维度科技连线！
+        String cypher = "MATCH (u:Resume {id: $resumeGraphId})-[r:HAS_TRACK]->(target:Category) " +
+                "OPTIONAL MATCH (target)-[r2:CONTAINS_SKILL|CONTAINS_PROJ|CONTAINS_AWARD]->(subTarget) " +
+                "OPTIONAL MATCH (subTarget)-[r3:USING_TECH]->(thirdTarget) " +
+                "RETURN u, r, target, r2, subTarget, r3, thirdTarget";
+
+        // 3. 轰炸图库抓取快照记录
+        Collection<Map<String, Object>> rawResults = neo4jClient.query(cypher)
+                .bind(resumeGraphId).to("resumeGraphId")
+                .fetch()
+                .all();
+
+        // =================================================================
+        // 🌟 核心突破：如果没查到，说明 Neo4j 里是一片虚无，火速丢给 MQ 异步编织规矩图
+        // =================================================================
+        if (rawResults == null || rawResults.isEmpty()) {
+            log.warn("📡 [图谱引擎感知] 检测到 Neo4j 中暂无简历 ID: ({}) 的「双轨规矩网络」，启动异步合围计划...", id);
+
+            // A. 从达梦数据库查出原本大模型解析好的全量 JSON 字段
+            ResumeDO resumeDO = resumeMapper.selectById(id);
+
+            if (resumeDO != null && resumeDO.getParsedJson() != null) {
+                String parsedJsonStr = resumeDO.getParsedJson();
+
+                // B. 动用生产者，一枪把弹药包射进 MQ 独立图谱同步队列！
+                resumeGraphProducer.sendGraphSyncMessage(id, parsedJsonStr);
+                log.info("🎉 [图谱引擎感知] 简历 ID: ({}) 已安全递交至 MQ 延迟编织队列，Python 消费者已接单...", id);
+            } else {
+                log.error("❌ [图谱引擎感知] 达梦数据库中竟然找不到该简历的 AI 解析结果！");
+            }
+
+            // 关键改动：没数据丢回 null，明确命令前端保持 Loading 动画开始大轮询
+            return null;
+        }
+
+        // 4. 🌟 直接调用工具类，瞬间完成 ECharts 拓扑图清洗并直出！
+        // 💡 提示：这里传入的中心 ID 必须是更新后的 resumeGraphId 啦
+        return Neo4jGraphUtils.buildEchartsGraph(rawResults, resumeGraphId);
     }
 
 }

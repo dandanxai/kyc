@@ -1,6 +1,5 @@
 <template>
     <div class="resume-detail-page" v-loading="loading">
-    <!-- 顶部控制悬浮栏 -->
     <div class="detail-action-bar">
         <div class="left-title">
         <el-button :icon="Back" circle @click="goBack"></el-button>
@@ -12,12 +11,9 @@
         </div>
     </div>
 
-    <!-- 主体两栏布局 -->
     <div class="detail-layout">
-        <!-- ================= 左侧：全息简历核心内容 ================= -->
         <div class="layout-left">
         
-        <!-- 1. 个人名片 -->
         <div class="detail-card hero-block">
             <div class="hero-main">
             <div class="hero-text">
@@ -25,7 +21,6 @@
                 <h2>{{ resumeData.name || '未解析出姓名' }}</h2>
                 <span class="status-tag">积极找工作</span>
                 </div>
-                <!-- 处理 expectedPosition 可能是数组或者字符串的情况 -->
                 <p class="job-title">{{ formatArray(resumeData.expectedPosition) || '暂无期望岗位' }}</p>
                 <div class="meta-grid">
                 <span>
@@ -46,7 +41,6 @@
             </div>
         </div>
 
-        <!-- 2. 🌟 新增：综合优势与核心成就 (对接 selfEvaluation 和 achievements) -->
         <div class="detail-card" v-if="resumeData.selfEvaluation || resumeData.achievements">
             <h3 class="block-title">综合优势与核心成就</h3>
             <div v-if="resumeData.achievements" class="mb-4">
@@ -59,13 +53,10 @@
             </div>
         </div>
 
-        <!-- 3. 🌟 强化：全栈技术能级画像 (整合 skillTags 和 coreSkills) -->
         <div class="detail-card chart-block" v-if="(resumeData.coreSkills && resumeData.coreSkills.length) || (resumeData.skillTags && resumeData.skillTags.length)">
             <h3 class="block-title">全栈技术能级画像</h3>
             <div class="chart-content">
-            <!-- 左侧：雷达图 -->
             <div ref="radarChartRef" class="radar-canvas"></div>
-            <!-- 右侧：真实的核心技能点罗列 -->
             <div class="tech-narrative">
                 <div class="proj-tags" style="margin-bottom: 16px;" v-if="resumeData.skillTags">
                 <span v-for="tag in resumeData.skillTags" :key="tag" class="tech-tag highlight-tag">{{ tag }}</span>
@@ -77,7 +68,6 @@
             </div>
         </div>
 
-        <!-- 4. 工作经历 (对接 workExperiences) -->
         <div class="detail-card project-block" v-if="resumeData.workExperiences && resumeData.workExperiences.length">
             <h3 class="block-title">工作经历</h3>
             <div class="project-timeline">
@@ -96,7 +86,6 @@
             </div>
         </div>
 
-        <!-- 5. 项目经历 (对接 projectExperiences) -->
         <div class="detail-card project-block" v-if="resumeData.projectExperiences && resumeData.projectExperiences.length">
             <h3 class="block-title">项目经历</h3>
             <div class="project-timeline">
@@ -107,11 +96,9 @@
                     <span class="proj-role" v-if="proj.role">{{ proj.role }}</span>
                 </div>
                 </div>
-                <!-- 技术栈展示 -->
                 <div class="proj-tags" v-if="proj.technology">
                 <span class="tech-tag tech-stack-tag">技术栈：{{ proj.technology }}</span>
                 </div>
-                <!-- 项目细节 -->
                 <div class="proj-desc-box">
                 <p><strong>项目描述与职责：</strong>{{ proj.description }}</p>
                 </div>
@@ -119,18 +106,15 @@
             </div>
         </div>
 
-        <!-- 6. 🌟 新增：荣誉奖项与资格证书 (对接 awards 和 certifications) -->
         <div class="detail-card list-block" v-if="(resumeData.awards && resumeData.awards.length) || (resumeData.certifications && resumeData.certifications.length)">
             <h3 class="block-title">荣誉奖项与资格证书</h3>
             <div class="two-col-list">
-            <!-- 奖项 -->
             <div class="list-col" v-if="resumeData.awards && resumeData.awards.length">
                 <h4 class="sub-title"><el-icon><Trophy /></el-icon> 荣誉奖项</h4>
                 <ul class="bullet-list">
                 <li v-for="(award, index) in resumeData.awards" :key="index">{{ award }}</li>
                 </ul>
             </div>
-            <!-- 证书 -->
             <div class="list-col" v-if="resumeData.certifications && resumeData.certifications.length">
                 <h4 class="sub-title"><el-icon><Medal /></el-icon> 资格证书</h4>
                 <ul class="bullet-list">
@@ -142,9 +126,7 @@
 
         </div>
 
-        <!-- ================= 右侧：求职意向与联系信道 ================= -->
         <div class="layout-right">
-        <!-- 求职意向 -->
         <div class="sidebar-card">
             <h3 class="side-title">期望意向</h3>
             <div class="side-item">
@@ -165,7 +147,6 @@
             </div>
         </div>
 
-        <!-- 联系信道 -->
         <div class="sidebar-card">
             <h3 class="side-title">联系方式</h3>
             <div class="side-item">
@@ -177,6 +158,17 @@
             <span class="val">{{ resumeData.email || '未填写' }}</span>
             </div>
         </div>
+
+        <div class="sidebar-action-block">
+            <el-button 
+            type="success" 
+            class="graph-btn" 
+            :icon="Connection" 
+            @click="navigateToGraphPage"
+            >
+            查看个人能力图谱
+            </el-button>
+        </div>
         </div>
     </div>
     </div>
@@ -185,8 +177,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-// 🌟 新引入 Trophy 和 Medal 图标
-import { Back, Download, Edit, User, Location, Document, Trophy, Medal } from '@element-plus/icons-vue'
+import { Back, Download, Edit, User, Location, Document, Trophy, Medal, Connection } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
 import { ResumeApi } from '@/api/resume/index'
@@ -200,8 +191,13 @@ const loading = ref(true)
 const resumeId = route.params.id || 24
 const resumeData = ref<any>({})
 
-// ======================= 工具函数 =======================
+// ======================= 🌟 核心修改：一键路由切换至图谱专页 =======================
+const navigateToGraphPage = () => {
+    if (!resumeId) return
+    router.push(`/resume/graph/${resumeId}`) // 🚀 丢下详情页，大跨步迈向全盘图谱专区
+}
 
+// ======================= 工具函数 =======================
 const formatFileName = (name: string) => {
     if (!name) return '未知简历文件'
     return name.replace(/\.(pdf|docx|doc|xlsx|xls)$/i, '')
@@ -214,7 +210,6 @@ const formatSalary = (min: number, max: number) => {
     return `${min}K - ${max}K`
 }
 
-// 防止某些大模型把 expected_position 吐成数组 ["java", "前端"]
 const formatArray = (val: any) => {
     if (!val) return ''
     if (Array.isArray(val)) return val.join(' / ')
@@ -226,25 +221,20 @@ const formatArray = (val: any) => {
 }
 
 // ======================= 网络请求 =======================
-
 const getResume = async () => {
     try {
     loading.value = true
     const res = await ResumeApi.getResume(resumeId)
-    console.log("🎉 获取到的全量简历数据：", res)
     if (res) {
         resumeData.value = res
     }
     } catch (error) {
-    console.error("💥 简历详情获取失败:", error)
-    ElMessage.error("获取简历详情失败，请检查网络或权限")
+    ElMessage.error("获取简历详情失败")
     } finally {
     loading.value = false
     initRadar()
     }
 }
-
-// ======================= 图表渲染 =======================
 
 const initRadar = () => {
     if (!radarChartRef.value) return
@@ -268,7 +258,7 @@ const initRadar = () => {
     series: [{
         type: 'radar',
         data: [{
-        value: [92, 88, 95, 80, 96], // 针对你的豪华简历稍微调高了默认分
+        value: [92, 88, 95, 80, 96],
         areaStyle: { color: 'rgba(37, 99, 235, 0.2)' },
         lineStyle: { color: '#2563eb', width: 2 },
         itemStyle: { color: '#2563eb' }
@@ -294,17 +284,15 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 保持原有的基础样式不变，增加新增模块的细节优化 */
+/* 保持原有样式不变 */
 .resume-detail-page { max-width: 1100px; margin: 88px auto 40px; padding: 0 20px; }
 .detail-action-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 14px 24px; border-radius: 12px; border: 1px solid #eef0f5; margin-bottom: 24px; position: sticky; top: 20px; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
 .left-title { display: flex; align-items: center; gap: 14px; }
 .resume-name { font-weight: 600; color: #1e293b; font-size: 16px; }
-
 .detail-layout { display: grid; grid-template-columns: 1fr 300px; gap: 24px; }
 .layout-left { display: flex; flex-direction: column; gap: 24px; }
 .detail-card { background: #fff; border-radius: 12px; border: 1px solid #eef0f5; padding: 24px; transition: all 0.3s ease; }
 .detail-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.04); }
-
 .hero-main { display: flex; gap: 20px; align-items: center; }
 .hero-text { width: 100%; }
 .name-row { display: flex; align-items: center; gap: 12px; }
@@ -313,27 +301,19 @@ onUnmounted(() => {
 .job-title { margin: 10px 0 16px; color: #2563eb; font-size: 16px; font-weight: 600; }
 .meta-grid { display: flex; flex-wrap: wrap; gap: 24px; color: #475569; font-size: 14px; }
 .meta-grid span { display: flex; align-items: center; gap: 6px; }
-
 .block-title { margin: 0 0 20px; font-size: 17px; font-weight: 600; color: #1e293b; border-left: 4px solid #2563eb; padding-left: 12px; }
 .sub-title { font-size: 15px; color: #334155; margin: 0 0 8px; display: flex; align-items: center; gap: 6px; }
-
-/* 长文本展示优化 */
 .desc-text { font-size: 14px; color: #475569; line-height: 1.7; margin: 0; white-space: pre-wrap; }
 .highlight-text { color: #1e293b; font-weight: 500; }
 .mb-4 { margin-bottom: 20px; }
-
-/* 雷达与长串技能点优化 */
 .chart-content { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: center; }
 .radar-canvas { width: 100%; height: 240px; }
 .core-skills-list { margin: 0; padding-left: 18px; color: #475569; font-size: 13.5px; line-height: 1.8; }
 .core-skills-list li { margin-bottom: 4px; }
-
-/* 双列列表结构（证书/奖项） */
 .two-col-list { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .list-col { background: #f8fafc; padding: 16px; border-radius: 8px; }
 .bullet-list { margin: 0; padding-left: 20px; color: #475569; font-size: 13.5px; line-height: 1.8; }
 .bullet-list li { margin-bottom: 6px; }
-
 .project-timeline { display: flex; flex-direction: column; gap: 24px; }
 .project-item { border-bottom: 1px dashed #e2e8f0; padding-bottom: 24px; }
 .project-item:last-child { border-bottom: none; padding-bottom: 0; }
@@ -348,13 +328,15 @@ onUnmounted(() => {
 .highlight-tag { background: #e0e7ff; color: #4338ca; } 
 .proj-desc-box { background: #f8fafc; padding: 16px; border-radius: 8px; font-size: 14px; line-height: 1.7; color: #334155; white-space: pre-wrap; }
 .proj-desc-box p { margin: 0; }
-
 .sidebar-card { background: #fff; border-radius: 12px; border: 1px solid #eef0f5; padding: 20px; margin-bottom: 20px; }
 .side-title { margin: 0 0 16px; font-size: 15px; font-weight: 600; color: #1e293b; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
 .side-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; font-size: 14px; }
 .side-item:last-child { margin-bottom: 0; }
 .side-item .label { color: #64748b; font-size: 13px; }
 .side-item .val { color: #1e293b; font-weight: 600; }
+.sidebar-action-block { width: 100%; margin-top: 12px; }
+.graph-btn { width: 100%; padding: 12px 0; border-radius: 10px; font-weight: 600; letter-spacing: 0.5px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15); }
+.graph-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(22, 163, 74, 0.25); }
 
 @media (max-width: 768px) {
     .detail-layout { grid-template-columns: 1fr; }

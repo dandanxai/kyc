@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: cn.kyc.dandanxia.framework.mybatis.core.util.MyBatisUtilsTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s -- in cn.kyc.dandanxia.framework.mybatis.core.util.MyBatisUtilsTest

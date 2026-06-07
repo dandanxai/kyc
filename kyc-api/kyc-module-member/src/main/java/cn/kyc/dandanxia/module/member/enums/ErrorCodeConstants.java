@@ -71,4 +71,9 @@ public interface ErrorCodeConstants {
     ErrorCode RESUME_NOT_EXISTS = new ErrorCode(1_004_015_000, "用户简历档案不存在");
     ErrorCode RESUME_SENG_MQ_ERROR = new ErrorCode(1_004_015_001, "压入 RabbitMQ 失败");
     ErrorCode RESUME_PARSE_ERROR = new ErrorCode(1_004_015_002, "获取信息失败");
+
+
+
+    ErrorCode POSITION_NOT_EXISTS = new ErrorCode(1_004_016_000, "企业岗位招聘档案不存在");
+    ErrorCode POSITION_SEND_MQ_ERROR = new ErrorCode(1_004_016_001, "压入 RabbitMQ 失败");
 }

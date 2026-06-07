@@ -1,0 +1,19 @@
+{
+  "groups": [
+    {
+      "name": "kyc.cache",
+      "type": "cn.kyc.dandanxia.framework.redis.config.KycCacheProperties",
+      "sourceType": "cn.kyc.dandanxia.framework.redis.config.KycCacheProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "kyc.cache.redis-scan-batch-size",
+      "type": "java.lang.Integer",
+      "description": "redis scan 一次返回数量",
+      "sourceType": "cn.kyc.dandanxia.framework.redis.config.KycCacheProperties",
+      "defaultValue": 30
+    }
+  ],
+  "hints": []
+}

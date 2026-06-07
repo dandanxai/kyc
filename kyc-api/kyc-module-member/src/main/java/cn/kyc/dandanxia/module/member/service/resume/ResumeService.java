@@ -62,4 +62,6 @@ public interface ResumeService {
     void updateResumeActive(@Valid AppResumeUpdateActiveReqVO updateActiveReqVO);
 
     AppResumeDetailRespVO getResumeDetail(Long id);
+
+    AppResumeGraphRespVO getResumeGraph(Long id);
 }

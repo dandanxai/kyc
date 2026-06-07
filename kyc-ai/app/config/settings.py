@@ -14,7 +14,8 @@ class Settings(BaseSettings):
     rabbitmq_port: int = 5672
     rabbitmq_user: str = "guest"
     rabbitmq_password: str = "guest"
-    queue_name: str = "KYC_RESUME_PARSE_QUEUE" # 完美对齐你的最新队列名
+    resume_queue_name: str = "KYC_RESUME_PARSE_QUEUE"
+    position_queue_name: str = "KYC_POSITION_PARSE_QUEUE"
 
     # 3. AI 大模型规约
     ollama_api_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
@@ -31,6 +32,11 @@ class Settings(BaseSettings):
     # 5. 🛠️ 新增：网络请求代理规约（默认跳过代理，直连国内大厂）
     http_proxy: Optional[str] = None
     https_proxy: Optional[str] = None
+
+    # 6. 🌌 新增：Neo4j 图数据库专属规约
+    neo4j_uri: str = "bolt://127.0.0.1:7687"
+    neo4j_user: str = "neo4j"
+    neo4j_password: str = "20050106@Hs"
 
     @property
     def request_proxies(self) -> dict:

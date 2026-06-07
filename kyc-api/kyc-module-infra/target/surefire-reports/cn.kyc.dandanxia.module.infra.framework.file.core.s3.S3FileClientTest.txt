@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: cn.kyc.dandanxia.module.infra.framework.file.core.s3.S3FileClientTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 6, Time elapsed: 0.003 s -- in cn.kyc.dandanxia.module.infra.framework.file.core.s3.S3FileClientTest

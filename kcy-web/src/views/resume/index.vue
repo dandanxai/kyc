@@ -128,10 +128,13 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { Plus, Upload, View, Edit, MoreFilled, Loading } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import dayjs from 'dayjs'
 import ResumeUploadDialog from './ResumeUploadDialog.vue'
 import { ResumeApi } from '@/api/resume/index'
+
+import { useUserStore } from '@/store/modules/user'
+const userStore = useUserStore()
 
 const router = useRouter()
 const resumeUploadDialogRef = ref<InstanceType<typeof ResumeUploadDialog> | null>(null)
@@ -143,81 +146,110 @@ const 投递总数 = ref(24)
 
 // 分页控制
 const currentPage = ref(1)
-const pageSize = ref(5) // 固定每次加载 5 条
+const pageSize = ref(5) 
 const isLoading = ref(false)
 const isNoMore = ref(false)
 
-// 🌟 核心改进：整页原生触底监听
+// 🌟 SSE 长连接实例对象
+let sseSource: EventSource | null = null
+
+// 核心初始化：建立长连接通道
+const initResumeSse = () => {
+    
+    if (sseSource) sseSource.close()
+    
+    // 🚀 一剑穿透：连上咱们在 Java 里写好的 SSE 管道
+    sseSource = new EventSource(`http://127.0.0.1:48080/app-api/member/sse/connect?userId=${userStore.userInfo?.id}`)
+
+    // 监听 Python -> Java 转发过来的大模型解析成功喜报
+    sseSource.addEventListener('RESUME_PARSE_SUCCESS', (event) => {
+        const parsedId = Number(event.data)
+        
+        // 1. 右上角弹出高大上的智能通报
+        ElNotification({
+            title: 'AI 全息档案构建成功',
+            message: '大模型已成功榨取文本并完成落库，正在为您局部刷新视图...',
+            type: 'success',
+            duration: 3500
+        })
+
+        // 2. 🌟 极速局部高能刷新：直接在前端遍历当前列表，把正在转圈的状态秒变成功
+        const targetResume = myResumes.value.find(r => r.id === parsedId)
+        if (targetResume) {
+            // 原地改变状态，骨架屏瞬间消失，真实数据惊艳亮相
+            targetResume.parseStatus = 2
+        }
+        
+        // 3. 稳妥起见，静默同步一次当前页的数据（不破坏用户的滚动位置）
+        silentRefreshCurrentPage()
+    })
+}
+
+// 静默同步当前页数据（无感知刷新）
+const silentRefreshCurrentPage = async () => {
+    try {
+        const res = await ResumeApi.getResumePage({ pageNo: 1, pageSize: myResumes.value.length })
+        const resData = (res && res.list !== undefined) ? res : res?.data
+        if (resData && Array.isArray(resData.list)) {
+            // 精准覆盖现有列表里的最新大模型标签
+            myResumes.value = resData.list
+            totalCount.value = resData.total
+        }
+    } catch (e) {
+        console.error('静默同步异常:', e)
+    }
+}
+
+// 🌟 原生触底监听
 const handleWindowScroll = () => {
     if (isLoading.value || isNoMore.value) return
-
-    // 网页可见区域高度
     const clientHeight = document.documentElement.clientHeight
-    // 整个网页的滚动总高度
     const scrollHeight = document.documentElement.scrollHeight
-    // 已经滚动上去的高度
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
-
-    // 当滚动到距离浏览器底部小于 50px 时，自动往下追加加载
     if (scrollHeight - (scrollTop + clientHeight) < 50) {
-    loadMoreResume()
+        loadMoreResume()
     }
 }
 
-// 适配芋道后端数据结构的方法（融入了 1000ms 最小高能丝滑等待，防止快慢闪屏）
+// 适配后端数据结构（含1000ms丝滑等待）
 const loadMoreResume = async () => {
-if (isLoading.value || isNoMore.value) return
+    if (isLoading.value || isNoMore.value) return
+    isLoading.value = true
+    const minLoadingPromise = new Promise(resolve => setTimeout(resolve, 1000))
 
-isLoading.value = true
-
-// 🌟 核心改进：记录请求发出的时间戳，或使用 Promise.all 设定一个 1000ms 的最小等待期
-const minLoadingPromise = new Promise(resolve => setTimeout(resolve, 1000))
-
-try {
-    const queryParams = {
-    pageNo: currentPage.value,
-    pageSize: pageSize.value
-    }
-    
-    // 🚀 同时执行“网络请求”与“1秒定时器”，确保最少消耗 1 秒时间
-    const [res] = await Promise.all([
-    ResumeApi.getResumePage(queryParams),
-    minLoadingPromise
-    ])
-
-    console.log(res);
-    
-    
-    const resData = (res && res.list !== undefined) ? res : res?.data
-
-    if (resData && Array.isArray(resData.list)) {
-    totalCount.value = resData.total
-
-    if (resData.list.length > 0) {
-        // 直接在原来的数组后面追加
-        myResumes.value = [...myResumes.value, ...resData.list]
+    try {
+        const queryParams = { pageNo: currentPage.value, pageSize: pageSize.value }
+        const [res] = await Promise.all([
+            ResumeApi.getResumePage(queryParams),
+            minLoadingPromise
+        ])
         
-        if (myResumes.value.length >= resData.total) {
-        isNoMore.value = true
+        const resData = (res && res.list !== undefined) ? res : res?.data
+
+        if (resData && Array.isArray(resData.list)) {
+            totalCount.value = resData.total
+            if (resData.list.length > 0) {
+                myResumes.value = [...myResumes.value, ...resData.list]
+                if (myResumes.value.length >= resData.total) {
+                    isNoMore.value = true
+                } else {
+                    currentPage.value++ 
+                }
+            } else {
+                isNoMore.value = true
+            }
         } else {
-        currentPage.value++ 
+            if (res && res.code !== undefined && res.code !== 0) {
+                ElMessage.error(res.msg || '获取简历列表异常')
+            } else {
+                isNoMore.value = true
+            }
         }
-    } else {
-        isNoMore.value = true
+    } catch (err) {
+        console.error('拉取分页简历异常:', err)
+    } finally {
+        isLoading.value = false
     }
-    } else {
-    if (res && res.code !== undefined && res.code !== 0) {
-        ElMessage.error(res.msg || '获取简历列表异常')
-    } else {
-        isNoMore.value = true
-    }
-    }
-} catch (err) {
-    console.error('拉取分页简历异常:', err)
-} finally {
-    // 最终在 1s 之后统一关闭状态，动画过渡极其丝滑
-    isLoading.value = false
-}
 }
 
 // 刷新并重置
@@ -227,26 +259,32 @@ const refreshResumeList = () => {
     isNoMore.value = false
     isLoading.value = false
     nextTick(() => {
-    loadMoreResume()
+        loadMoreResume()
     })
 }
 
-// 🌟 生命周期：挂载时监听整个窗口滚动，卸载时一定要移除销毁
+// 🌟 生命周期闭环
 onMounted(() => {
     refreshResumeList()
     window.addEventListener('scroll', handleWindowScroll)
+    // 🚀 挂载时率先启动 SSE 监听雷达
+    initResumeSse()
 })
 
 onBeforeUnmount(() => {
     window.removeEventListener('scroll', handleWindowScroll)
+    // 🌟 终极护航：卸载时切断长连接，防止内存和连接数暴涨
+    if (sseSource) {
+        sseSource.close()
+    }
 })
 
 // 默认简历置顶规则
 const sortedResumes = computed(() => {
     return [...myResumes.value].sort((a, b) => {
-    if (a.isActive === 1 && b.isActive !== 1) return -1
-    if (a.isActive !== 1 && b.isActive === 1) return 1
-    return b.id - a.id
+        if (a.isActive === 1 && b.isActive !== 1) return -1
+        if (a.isActive !== 1 && b.isActive === 1) return 1
+        return b.id - a.id
     })
 })
 
@@ -261,22 +299,19 @@ const createNewResume = () => { router.push('/resume/edit') }
 
 const handleCommand = async (command: string, resume: any) => {
     if (command === 'setDefault') {
-        // 🚀 只传递一个简历 id 即可，后端全自动取反更新
         const res = await ResumeApi.updateResumeActive(resume.id)
-        
         if (res && (res.code === 0 || res === true)) {
-        // 动态提示，让体验更好
-        const msg = resume.isActive === 1 ? `已取消 [${resume.fileName}] 的默认投递状态` : `已成功设置 [${resume.fileName}] 为默认简历`
-        ElMessage.success(msg)
-        refreshResumeList()
+            const msg = resume.isActive === 1 ? `已取消 [${resume.fileName}] 的默认投递状态` : `已成功设置 [${resume.fileName}] 为默认简历`
+            ElMessage.success(msg)
+            refreshResumeList()
         }
     } else if (command === 'delete') {
         ElMessageBox.confirm(`确认删除简历 [${resume.fileName}] 吗？`, '警告', { type: 'warning' }).then(async () => {
-        const res = await ResumeApi.deleteResume(resume.id)
-        if (res && (res.code === 0 || res === true)) {
-            ElMessage.success('删除成功')
-            refreshResumeList()
-        }
+            const res = await ResumeApi.deleteResume(resume.id)
+            if (res && (res.code === 0 || res === true)) {
+                ElMessage.success('删除成功')
+                refreshResumeList()
+            }
         })
     }
 }

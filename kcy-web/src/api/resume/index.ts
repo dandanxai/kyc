@@ -24,6 +24,11 @@ export const ResumeApi = {
     return await request.get({ url: `/member/resume/get?id=` + id })
   },
 
+  // 查询用户简历档案详情
+  getResumeGraph: async (id: number) => {
+    return await request.get({ url: `/member/resume/get-graph?id=` + id })
+  },
+
   // 新增用户简历档案
   createResume: async (data: Resume) => {
     return await request.post({ url: `/member/resume/create`, data })

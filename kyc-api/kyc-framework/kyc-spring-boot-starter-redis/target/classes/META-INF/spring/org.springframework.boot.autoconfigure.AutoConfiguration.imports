@@ -1,0 +1,2 @@
+cn.kyc.dandanxia.framework.redis.config.KycRedisAutoConfiguration
+cn.kyc.dandanxia.framework.redis.config.KycCacheAutoConfiguration

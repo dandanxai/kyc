@@ -1,0 +1,11 @@
+{
+  "groups": [
+    {
+      "name": "kyc.tracer",
+      "type": "cn.kyc.dandanxia.framework.tracer.config.TracerProperties",
+      "sourceType": "cn.kyc.dandanxia.framework.tracer.config.TracerProperties"
+    }
+  ],
+  "properties": [],
+  "hints": []
+}

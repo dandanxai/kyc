@@ -55,6 +55,12 @@ const routes: Array<RouteRecordRaw> = [
         meta: { title: '企业详情' }
     },
     {
+        path: '/resume/graph/:id',
+        name: 'ResumeGraphPage',
+        component: () => import('@/views/resume/graph.vue'), // 🌟 指向我们新建的独立图谱页面
+        meta: { title: '全息能力图谱', hidden: true }
+    },
+    {
         path: 'resume/edit',
         name: 'ResumeEdit',
         component: () => import('@/views/resume/edit.vue'),

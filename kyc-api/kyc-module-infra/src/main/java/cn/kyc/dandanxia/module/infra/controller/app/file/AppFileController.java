@@ -38,9 +38,24 @@ public class AppFileController {
             schema = @Schema(type = "string", format = "binary"))
     @PermitAll
     public CommonResult<String> uploadFile(@Valid AppFileUploadReqVO uploadReqVO) throws Exception {
+//        MultipartFile file = uploadReqVO.getFile();
+//        byte[] content = IoUtil.readBytes(file.getInputStream());
+//        return success(fileService.createFile(content, file.getOriginalFilename(),
+//                uploadReqVO.getDirectory(), file.getContentType()));
         MultipartFile file = uploadReqVO.getFile();
         byte[] content = IoUtil.readBytes(file.getInputStream());
-        return success(fileService.createFile(content, file.getOriginalFilename(),
+
+        // 1. 获取原始文件名和后缀 (例如: 直聘简历-未命名.pdf)
+        String originalFilename = file.getOriginalFilename();
+        String suffix = cn.hutool.core.io.FileUtil.extName(originalFilename);
+
+        // 2. 🚀【核心指纹清洗】：利用时间戳 + 唯一分布式UUID，组合成在阿里云上独一无二的存储Path
+        // 比如洗完后在阿里云叫: 1717614000_a1b2c3d4e5f6.pdf
+        String uniquePath = cn.hutool.core.date.DateUtil.current() + "_"
+                + cn.hutool.core.util.IdUtil.fastSimpleUUID() + "." + suffix;
+
+        // 3. 稳稳砸向阿里云 OSS，此时 path 绝不冲突，但内部表的 name 字段依旧会保留用户的 originalFilename
+        return success(fileService.createFile(content, uniquePath,
                 uploadReqVO.getDirectory(), file.getContentType()));
     }
 
